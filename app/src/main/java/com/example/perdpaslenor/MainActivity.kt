@@ -9,7 +9,9 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        val intent = Intent(this, ChildActivity::class.java)
-        startActivity(intent)
+        //val intent = Intent(this, IHMParentReception::class.java)
+        //val intent = Intent(this, ChildActivity::class.java)
+
+        //startActivity(intent)
     }
 }
