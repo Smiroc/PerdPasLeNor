@@ -14,6 +14,7 @@
         tools:targetApi="31">
 
         <activity
+
             android:name=".MainActivity"
             android:exported="true">
             <intent-filter>
@@ -22,12 +23,21 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
         <activity
             android:name=".IHMParentReception"
             android:exported="true" />
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyD1eWnPbOQAc6EOhoK9xF8HjiGoU841tOs" />
+
+        <activity
+            android:name=".ChildActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.example.perdpaslenor.ACTION_START_CHILDACTIVITY" />
+            </intent-filter>
+        </activity>
     </application>
 
 </manifest>
