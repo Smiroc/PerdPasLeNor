@@ -8,7 +8,7 @@ import android.widget.Button
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.google.firebase.messaging.FirebaseMessaging
-
+import com.google.firebase.firestore.FirebaseFirestore
 
 class ChildActivity : AppCompatActivity() {
     lateinit var firebaseMessaging: FirebaseMessaging
@@ -27,14 +27,17 @@ class ChildActivity : AppCompatActivity() {
 
             // Get new FCM registration token
             val token = task.result
-            val button = findViewById(R.id.button) as Button
+            val button = findViewById<Button>(R.id.button)
             button.setOnClickListener {
-                Toast.makeText(baseContext, token, Toast.LENGTH_SHORT).show()
+                val db = FirebaseFirestore.getInstance()
+                val documentSnapshot = db.collection("track").document("UalHf4Je6FJOPKlB4SKv")
+                val data = hashMapOf(
+                    "child" to "Titouan",
+                    "parent" to "Fabrice"
+                )
+                documentSnapshot.set(data)
+
             }
         }
-        // Log and toast
-//            val msg = getString(R.string.msg_token_fmt, token)
-//            Log.d(TAG, msg)
-//            Toast.makeText(baseContext, msg, Toast.LENGTH_SHORT).show()
     }
 }
