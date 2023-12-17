@@ -27,6 +27,12 @@
         <activity
             android:name=".IHMParentReception"
             android:exported="true" />
+        <activity
+            android:name=".Authentification"
+            android:exported="true" />
+        <activity
+            android:name=".Activity"
+            android:exported="true" />
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyD1eWnPbOQAc6EOhoK9xF8HjiGoU841tOs" />
