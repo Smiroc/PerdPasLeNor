@@ -97,8 +97,8 @@ class BackgroundChildrenService : Service() {
 
     override fun onDestroy() {
         super.onDestroy()
-        // Stop location updates when the service is destroyed
-        executorService.shutdownNow()
+        // Stop le service quand l'application est fermée
+        //executorService.shutdownNow()
 
     }
 
