@@ -44,11 +44,12 @@ class Connexion : AppCompatActivity() {
         if(requestCode==10001){
             val task = GoogleSignIn.getSignedInAccountFromIntent(data)
             val account = task.getResult(ApiException::class.java)
-            val credential = GoogleAuthProvider.getCredential(account.idToken,null)
+            val credential = GoogleAuthProvider.getCredential(account.idToken, null)
+
             FirebaseAuth.getInstance().signInWithCredential(credential)
                 .addOnCompleteListener{task->
                     if(task.isSuccessful){
-                        val i = Intent(this,Authentification::class.java)
+                        val i = Intent(this,MainActivity::class.java)
                         startActivity(i)
                     }else{
                         Toast.makeText(this, task.exception?.message, Toast.LENGTH_SHORT).show()
@@ -56,4 +57,8 @@ class Connexion : AppCompatActivity() {
                 }
         }
     }
+
+    /*override fun onStart(){
+        super.onStart()
+    }*/
 }
