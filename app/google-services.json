@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "810142758290",
+    "project_id": "childtracker-ee9bd",
+    "storage_bucket": "childtracker-ee9bd.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:810142758290:android:9b487dced428f38a20fd4b",
+        "android_client_info": {
+          "package_name": "com.example.perdpaslenor"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDRoIFrvH3jVLKojKHJkWY4zYPSJQayMEc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:810142758290:android:f624edc39336123020fd4b",
+        "android_client_info": {
+          "package_name": "com.exemple.perdpaslenor"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDRoIFrvH3jVLKojKHJkWY4zYPSJQayMEc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
