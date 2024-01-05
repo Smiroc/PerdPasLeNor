@@ -1,21 +1,15 @@
 package com.example.perdpaslenor
 
-import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
-import android.view.View
-import android.widget.Button
 import android.widget.Toast
-import android.widget.ToggleButton
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.gms.auth.api.signin.GoogleSignIn
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
-
 
 class Connexion : AppCompatActivity() {
     private lateinit var buttonG : com.google.android.gms.common.SignInButton
@@ -58,7 +52,11 @@ class Connexion : AppCompatActivity() {
         }
     }
 
-    /*override fun onStart(){
+    override fun onStart() {
         super.onStart()
-    }*/
+        if(FirebaseAuth.getInstance().currentUser != null){
+            val i  = Intent(this,MainActivity::class.java)
+            startActivity(i)
+        }
+    }
 }
