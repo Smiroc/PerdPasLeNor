@@ -25,6 +25,9 @@
             </intent-filter>
         </activity>
 
+        <activity android:name=".Connexion"/>
+        <activity android:name=".Authentification"/>
+
         <activity
             android:name=".IHMParentReception"
             android:exported="true" />
