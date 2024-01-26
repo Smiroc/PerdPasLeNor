@@ -33,14 +33,6 @@ class Authentification : AppCompatActivity() {
         }
     }
 
-
-    private fun Connexion() {
-        val intent = Intent(this, Activity::class.java)
-        startActivity(intent)
-        finish()
-    }
-
-
     private fun checkLocationPermission(): Boolean {
         return ContextCompat.checkSelfPermission(
             this,

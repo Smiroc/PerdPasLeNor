@@ -32,14 +32,6 @@
             android:name=".IHMParentReception"
             android:exported="true" />
 
-        <activity
-            android:name=".Authentification"
-            android:exported="true" />
-
-        <activity
-            android:name=".Activity"
-            android:exported="true" />
-
         <service
             android:name=".BackgroundChildrenService"
             android:enabled="true"
