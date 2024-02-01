@@ -52,7 +52,7 @@
         app:srcCompat="@drawable/bouton" />
 
     <EditText
-        android:id="@+id/editTextNumber"
+        android:id="@+id/Number"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:ems="5"
@@ -66,12 +66,15 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <Button
-        android:id="@+id/button2"
+        android:id="@+id/Envoie"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Envoie du SMS"
-        tools:layout_editor_absoluteX="134dp"
-        tools:layout_editor_absoluteY="429dp" />
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.632" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
