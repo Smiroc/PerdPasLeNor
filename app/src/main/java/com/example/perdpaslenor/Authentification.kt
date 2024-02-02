@@ -23,14 +23,13 @@ class Authentification : AppCompatActivity() {
         boutonconf = findViewById<View>(R.id.buttonconfirmation) as Button?
         boutonconf!!.setOnClickListener { Connexion() }
 
-        //Regarde si la permission de la localisation est accordée
-        if (checkLocationPermission()) {
-            val intent = Intent(this, BackgroundChildrenService::class.java)
-            startService(intent)
-        } else {
+        //Regarde si la permission de la localisation n'est pas accordée
+        if (!checkLocationPermission()) {
             // Demande la localisation si elle n'est pas active
             requestLocationPermission()
         }
+        val intent = Intent(this, BackgroundChildrenService::class.java)
+        startService(intent)
     }
 
 
@@ -70,7 +69,6 @@ class Authentification : AppCompatActivity() {
             // Regarde si la permission est accordée
             if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 // Permission accordée
-                Log.d("test", "grantResult")
 
                 val intentBgChild = Intent(this, BackgroundChildrenService::class.java)
 

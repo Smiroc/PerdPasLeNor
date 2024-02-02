@@ -55,7 +55,6 @@ class IHMParentReception : AppCompatActivity(), OnMapReadyCallback {
                 }
             }
         }
-
     }
 
     override fun onMapReady(googleMap: GoogleMap){

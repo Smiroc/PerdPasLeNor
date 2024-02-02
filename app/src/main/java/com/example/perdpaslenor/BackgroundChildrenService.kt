@@ -13,6 +13,9 @@ import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.TimeUnit
 import androidx.core.content.ContextCompat
+import com.google.firebase.Timestamp
+import com.google.firebase.firestore.SetOptions
+
 
 class BackgroundChildrenService : Service() {
     private lateinit var executorService: ScheduledExecutorService
@@ -29,7 +32,8 @@ class BackgroundChildrenService : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        //Programme la tache suivante toutes les 5 minutes
+
+        //Programme la tâche suivante toutes les 5 minutes
         executorService.scheduleAtFixedRate(
             Runnable {
                 locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
@@ -53,36 +57,42 @@ class BackgroundChildrenService : Service() {
 
                     // Établis la connexion avec la base de données
                     val db = FirebaseFirestore.getInstance()
-                    val documentReference = db.collection("track").document("UalHf4Je6FJOPKlB4SKv")
+                    val documentReference = db.collection("track").document("UalHf4Je6FJOPKlB4SKv") // Utiliser le numéro aléatoire de dylan
+                    val document = documentReference.get()
 
                     // Regarde si l'application possède la permission de la localisation
                     if (fineLocationPermission && coarseLocationPermission) {
+                        // Obtenir la localisation grâce à Internet
+                        val location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER)
 
-                        // Obtiens la localisation grâce à internet
-                        val location =
-                            locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER)
                         if (location != null) {
                             val latitude = location.latitude.toString()
                             val longitude = location.longitude.toString()
 
-                            // Met à jour la localisation de l'enfant dans la base de données
-                            documentReference.update("latitude", latitude)
+                            // Utiliser set avec merge pour mettre à jour ou créer les champs
+                            val data = hashMapOf(
+                                "latitude" to latitude,
+                                "longitude" to longitude,
+                                "etat" to "Connecté.",
+                                "date" to Timestamp.now()
+                            )
+
+                            documentReference.set(data, SetOptions.merge())
                                 .addOnFailureListener { e ->
-                                    Log.e("Firestore", "Error updating location: $e")
+                                    Log.e("Firestore", "Error updating/creating document: $e")
                                 }
-                            documentReference.update("longitude", longitude)
-                                .addOnFailureListener { e ->
-                                    Log.e("Firestore", "Error updating location: $e")
-                                }
+                        } else {
+                            // Pas de localisation disponible
+                            Log.e("Location", "No location available.")
                         }
                     } else {
-                        //Pas d'accès à la localisation
-                        documentReference.update(
-                            "etat",
-                            "L'enfant n'a pas activé le positionnement de l'appareil."
-                        ).addOnFailureListener { e ->
-                            Log.e("Firestore", "Error updating location: $e")
-                        }
+                        // Pas d'accès à la localisation
+                        val data = hashMapOf("etat" to "L'enfant n'a pas activé le positionnement de l'appareil.")
+
+                        documentReference.set(data, SetOptions.merge())
+                            .addOnFailureListener { e ->
+                                Log.e("Firestore", "Error updating/creating document: $e")
+                            }
                     }
                 }
             },
