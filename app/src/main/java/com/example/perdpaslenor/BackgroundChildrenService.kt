@@ -8,11 +8,11 @@ import android.content.pm.PackageManager
 import android.location.LocationManager
 import android.os.IBinder
 import android.util.Log
+import androidx.core.content.ContextCompat
 import com.google.firebase.firestore.FirebaseFirestore
 import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.TimeUnit
-import androidx.core.content.ContextCompat
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.SetOptions
 

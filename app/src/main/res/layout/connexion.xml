@@ -26,7 +26,7 @@
         android:id="@+id/textView2"
         android:layout_width="313dp"
         android:layout_height="107dp"
-        android:text="Veuillez-entrer le compte gmail du parent ou de l'enfant !"
+        android:text="Veuillez-entrer le numéro du parent ou de l'enfant !"
         android:textAlignment="center"
         android:textColor="#FFFFFF"
         android:textColorHint="#FFFFFF"
@@ -48,36 +48,33 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.424"
         app:srcCompat="@drawable/bouton" />
 
-    <Button
-        android:id="@+id/buttongmail"
-        android:layout_width="312dp"
-        android:layout_height="98dp"
-        android:backgroundTint="#FFFFFF"
-        android:text="Validation du mail"
-        android:textColor="#000000"
-        android:textSize="24sp"
-        android:textStyle="bold"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.678" />
-
     <EditText
-        android:id="@+id/editgmail"
-        android:layout_width="220dp"
-        android:layout_height="51dp"
-        android:background="#FFFFFF"
-        android:ems="10"
-        android:hint="adresse@gmail.com"
-        android:inputType="phone"
-        android:textAlignment="center"
+        android:id="@+id/Number"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:ems="5"
+        android:hint="06.."
+        android:textSize="50dp"
+        android:background="@color/white"
+        android:inputType="number"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/Envoie"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Envoie du SMS"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.632" />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>
