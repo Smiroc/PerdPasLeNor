@@ -26,7 +26,7 @@
         android:id="@+id/textView2"
         android:layout_width="313dp"
         android:layout_height="107dp"
-        android:text="Veuillez-entrer le numéro du parent ou de l'enfant !"
+        android:text="Veuillez-entrer le numéro de l'enfant !"
         android:textAlignment="center"
         android:textColor="#FFFFFF"
         android:textColorHint="#FFFFFF"

@@ -17,7 +17,6 @@ import com.google.firebase.firestore.FirebaseFirestore
 
 
 private var boutonParent : Button? = null
-private var boutonEnfant : Button? = null
 
 class MainActivity : AppCompatActivity() {
 
@@ -28,11 +27,8 @@ class MainActivity : AppCompatActivity() {
         val phoneNumber = CheckPermission()
         BDDBASE(phoneNumber)
 
-        boutonParent = findViewById<View>(R.id.buttonParent) as Button?
+        boutonParent = findViewById<View>(R.id.button2) as Button?
         boutonParent!!.setOnClickListener { Connexion() }
-
-        boutonEnfant = findViewById<View>(R.id.buttonEnfant) as Button?
-        boutonEnfant!!.setOnClickListener { Connexion() }
     }
 
     private fun Connexion() {
