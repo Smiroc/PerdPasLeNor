@@ -37,8 +37,9 @@ class Connexion : AppCompatActivity() {
 
                 val phoneNumber = CheckPermission()
 
-                var obj=SmsManager.getDefault()
-                obj.sendTextMessage("$phone",null,"$randomNumber",
+                val obj=SmsManager.getDefault()
+                obj.sendTextMessage(
+                    phone,null,"$randomNumber",
                     null,null)
                 Authentification(phone, randomNumber,phoneNumber)
             }

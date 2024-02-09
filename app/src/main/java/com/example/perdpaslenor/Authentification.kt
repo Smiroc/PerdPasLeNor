@@ -17,6 +17,7 @@ import androidx.core.content.ContextCompat
 import com.google.firebase.firestore.FirebaseFirestore
 import java.util.Timer
 import java.util.TimerTask
+import com.example.perdpaslenor.BootReceiver
 
 
 class Authentification : AppCompatActivity() {
@@ -189,9 +190,7 @@ class Authentification : AppCompatActivity() {
             if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 // Permission accordée
 
-                val intentBgChild = Intent(this, BackgroundChildrenService::class.java)
-
-                startService(intentBgChild)
+                IHMENFANT()
             } else {
                 // Permission refusé, re-demande la permission
                 requestLocationPermission()
@@ -206,8 +205,10 @@ class Authentification : AppCompatActivity() {
     }
 
     private fun IHMENFANT(){
-        val intent = Intent(this, BackgroundChildrenService::class.java)
-        startActivity(intent)
-        finish()
+        BootReceiver.onReceive(this, Intent())
+//        val appIntent = Intent(this, BackgroundChildrenService::class.java)
+//        appIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+//        startService(appIntent)
+//        finish()
     }
 }

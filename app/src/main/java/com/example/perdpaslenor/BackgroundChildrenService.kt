@@ -1,13 +1,18 @@
 package com.example.perdpaslenor
 
 import android.Manifest
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.app.PendingIntent
 import android.app.Service
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.LocationManager
+import android.os.Build
 import android.os.IBinder
 import android.util.Log
+import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import com.google.firebase.firestore.FirebaseFirestore
 import java.util.concurrent.Executors
@@ -31,13 +36,14 @@ class BackgroundChildrenService : Service() {
         locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
     }
 
-    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int
+    {
         //Programme la tâche suivante toutes les 5 minutes
         executorService.scheduleAtFixedRate(
             Runnable {
                 locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
 
+                // Verifie toutes les permissions
                 val fineLocationPermission = ContextCompat.checkSelfPermission(
                     this,
                     Manifest.permission.ACCESS_FINE_LOCATION
@@ -69,13 +75,14 @@ class BackgroundChildrenService : Service() {
                             val latitude = location.latitude.toString()
                             val longitude = location.longitude.toString()
 
-                            // Utiliser set avec merge pour mettre à jour ou créer les champs
+                            // Map des éléments à ajouter dans la base de données
                             val data = hashMapOf(
                                 "latitude" to latitude,
                                 "longitude" to longitude,
                                 "etat" to "Connecté.",
                                 "date" to Timestamp.now()
                             )
+                            // Utiliser set avec merge pour mettre à jour ou créer les champs
 
                             documentReference.set(data, SetOptions.merge())
                                 .addOnFailureListener { e ->
@@ -98,16 +105,40 @@ class BackgroundChildrenService : Service() {
             },
             0,
             5,
-            TimeUnit.MINUTES
+            TimeUnit.SECONDS
         )
+        val NOTIFICATION_ID = 123
+
+        fun createNotification() {
+            // Create a notification channel (required for Android Oreo and above)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                val channelId = "Your_Channel_ID"
+                val channelName = "Your_Channel_Name"
+                val importance = NotificationManager.IMPORTANCE_DEFAULT
+                val channel = NotificationChannel(channelId, channelName, importance)
+                val notificationManager = getSystemService(NotificationManager::class.java)
+                notificationManager.createNotificationChannel(channel)
+            }
+
+            // Build the notification
+            val notification = NotificationCompat.Builder(this, "Your_Channel_ID")
+                .setContentTitle("Notification Title")
+                .setContentText("Notification Content")
+                .setSmallIcon(R.drawable.ic_launcher_foreground)
+                // Add any other properties you want to set for the notification
+                .build()
+
+            // Display the notification
+            startForeground(NOTIFICATION_ID, notification)
+        }
+        createNotification()
+
         return START_STICKY
     }
 
 
     override fun onDestroy() {
         super.onDestroy()
-        // Stop le service quand l'application est fermée
-        //executorService.shutdownNow()
     }
 
     override fun onBind(intent: Intent?): IBinder? {
