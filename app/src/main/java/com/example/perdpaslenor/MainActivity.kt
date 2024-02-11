@@ -13,7 +13,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.google.firebase.firestore.FirebaseFirestore
-
+import java.math.BigInteger
+import java.security.MessageDigest
 
 
 private var boutonParent : Button? = null
@@ -37,7 +38,16 @@ class MainActivity : AppCompatActivity() {
         finish()
     }
 
-
+    fun encryptMD5(input: String): String {
+        val md = MessageDigest.getInstance("MD5")
+        val messageDigest = md.digest(input.toByteArray())
+        val no = BigInteger(1, messageDigest)
+        var hashtext: String = no.toString(16)
+        while (hashtext.length < 32) {
+            hashtext = "0$hashtext"
+        }
+        return hashtext
+    }
 
     private fun BDDBASE(phoneNumber: String?) {
         val internetPermission = ContextCompat.checkSelfPermission(
@@ -49,14 +59,14 @@ class MainActivity : AppCompatActivity() {
             // Établis la connexion avec la base de données
             val db = FirebaseFirestore.getInstance()
             db.collection("user")
-                .whereEqualTo("numeroParent", phoneNumber)
+                .whereEqualTo("numeroParent", phoneNumber?.let { encryptMD5(it) })
                 .get()
                 .addOnSuccessListener { parentdocuments ->
                     if (parentdocuments.isEmpty) {
                         // Aucun document trouvé pour le numéro de téléphone dans le champ "numeroEnfant"
                         // Essayez de chercher dans le champ "numeroParent"
                         db.collection("user")
-                            .whereEqualTo("numeroEnfant", phoneNumber)
+                            .whereEqualTo("numeroEnfant", phoneNumber?.let { encryptMD5(it) })
                             .get()
                             .addOnSuccessListener { enfantDocuments ->
                                 if (enfantDocuments.isEmpty) {

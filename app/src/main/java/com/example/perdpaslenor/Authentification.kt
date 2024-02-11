@@ -13,6 +13,8 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import com.google.firebase.firestore.FirebaseFirestore
+import java.math.BigInteger
+import java.security.MessageDigest
 import java.util.Timer
 import java.util.TimerTask
 
@@ -72,9 +74,22 @@ class Authentification : AppCompatActivity() {
         finish()
     }
 
+    fun encryptMD5(input: String): String {
+        val md = MessageDigest.getInstance("MD5")
+        val messageDigest = md.digest(input.toByteArray())
+        val no = BigInteger(1, messageDigest)
+        var hashtext: String = no.toString(16)
+        while (hashtext.length < 32) {
+            hashtext = "0$hashtext"
+        }
+        return hashtext
+    }
+
     private fun Parents(ME : String?, phoneTO: String?, codeAUTH : String?){
         editcode = findViewById(R.id.editionAUTH)
         val etexte: String = editcode?.text.toString()
+        val encryptedPhoneTO = phoneTO?.let { encryptMD5(it) }
+        val encryptedME = ME?.let { encryptMD5(it) }
         if(nbr > 0) {
             if (codeAUTH == etexte) {
                 val internetPermission = ContextCompat.checkSelfPermission(
@@ -88,8 +103,8 @@ class Authentification : AppCompatActivity() {
 
                     // Créez un objet de type Map pour stocker vos données
                     val user = hashMapOf(
-                        "numeroEnfant" to phoneTO,
-                        "numeroParent" to ME
+                        "numeroEnfant" to encryptedPhoneTO,
+                        "numeroParent" to encryptedME
                     )
 
                     // Ajoutez les données à votre collection "utilisateurs"
