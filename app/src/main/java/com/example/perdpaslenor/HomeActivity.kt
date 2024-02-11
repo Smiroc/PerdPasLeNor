@@ -5,44 +5,86 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
-import android.telephony.SmsManager
 import android.telephony.TelephonyManager
+import android.util.Log
+import android.view.View
 import android.widget.Button
-import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import com.google.firebase.firestore.FirebaseFirestore
 
-class Connexion : AppCompatActivity() {
-    companion object {
-        const val PERMISSION_REQUEST_READ_PHONE_STATE = 1
-        const val PERMISSION_REQUEST_SEND_SMS = 101
-    }
 
-    private lateinit var number: EditText
-    private lateinit var button: Button
+private lateinit var boutonParent: Button
+
+class HomeActivity : AppCompatActivity() {
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.connexion)
+        setContentView(R.layout.home)
 
-        button = findViewById(R.id.Envoie)
-        number = findViewById(R.id.Number)
+        val phoneNumber = CheckPermission()
+        BDDBASE(phoneNumber)
 
-        button.setOnClickListener {
-            val phone = number.text.toString()
-            if (phone.isNotEmpty()) {
-                val randomNumber = (10000..99999).random()
+        boutonParent = findViewById<View>(R.id.button2) as Button
+        boutonParent.setOnClickListener { Connexion() }
+    }
 
-                val phoneNumber = CheckPermission()
+    private fun Connexion() {
+        val intent = Intent(this, Connexion::class.java)
+        startActivity(intent)
+    }
 
-                val obj = SmsManager.getDefault()
-                obj.sendTextMessage(
-                    phone, null, "$randomNumber",
-                    null, null
-                )
-                Authentification(phone, randomNumber, phoneNumber)
-            }
+
+    private fun BDDBASE(phoneNumber: String?) {
+        val internetPermission = ContextCompat.checkSelfPermission(
+            this,
+            Manifest.permission.INTERNET
+        ) == PackageManager.PERMISSION_GRANTED
+
+        if (internetPermission) {
+            // Établis la connexion avec la base de données
+            val db = FirebaseFirestore.getInstance()
+            db.collection("user")
+                .whereEqualTo("numeroParent", phoneNumber)
+                .get()
+                .addOnSuccessListener { parentdocuments ->
+                    if (parentdocuments.isEmpty) {
+                        // Aucun document trouvé pour le numéro de téléphone dans le champ "numeroEnfant"
+                        // Essayez de chercher dans le champ "numeroParent"
+                        db.collection("user")
+                            .whereEqualTo("numeroEnfant", phoneNumber)
+                            .get()
+                            .addOnSuccessListener { enfantDocuments ->
+                                if (enfantDocuments.isEmpty) {
+                                    // Aucun document trouvé pour le numéro de téléphone dans le champ "numeroParent"
+                                    println("Aucun document trouvé.")
+                                } else {
+                                    val Genre: String = "enfant"
+                                    IHMAUTH(Genre)
+                                }
+                            }
+                            .addOnFailureListener { exception ->
+                                println("Erreur lors de la récupération des données : $exception")
+                            }
+                    } else {
+                        // Des documents ont été trouvés pour le numéro de téléphone dans le champ "numeroEnfant"
+                        val Genre: String = "parent"
+                        IHMAUTH(Genre)
+                    }
+                }
+                .addOnFailureListener { exception ->
+                    println("Erreur lors de la récupération des données : $exception")
+                }
+
+
+        } else {
+            Toast.makeText(
+                this,
+                "Veuillez autoriser la connexion à internet",
+                Toast.LENGTH_SHORT
+            ).show();
         }
     }
 
@@ -59,9 +101,8 @@ class Connexion : AppCompatActivity() {
         ) {
             // Demander la permission d'envoyer des SMS
             ActivityCompat.requestPermissions(
-                this,
-                arrayOf(Manifest.permission.SEND_SMS),
-                PERMISSION_REQUEST_SEND_SMS
+                this, arrayOf(Manifest.permission.SEND_SMS),
+                Connexion.PERMISSION_REQUEST_SEND_SMS
             )
         } else {
             permissionSMS = true
@@ -74,9 +115,8 @@ class Connexion : AppCompatActivity() {
         ) {
             // Demander la permission d'accéder au numéro de téléphone
             ActivityCompat.requestPermissions(
-                this,
-                arrayOf(Manifest.permission.READ_PHONE_STATE),
-                PERMISSION_REQUEST_READ_PHONE_STATE
+                this, arrayOf(Manifest.permission.READ_PHONE_STATE),
+                Connexion.PERMISSION_REQUEST_READ_PHONE_STATE
             )
         } else {
             permissionNUM = true
@@ -89,7 +129,6 @@ class Connexion : AppCompatActivity() {
         } else {
             // Vous devrez attendre la réponse de l'utilisateur dans onRequestPermissionsResult()
         }
-
         return phoneNumber
     }
 
@@ -100,7 +139,7 @@ class Connexion : AppCompatActivity() {
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         when (requestCode) {
-            PERMISSION_REQUEST_SEND_SMS -> {
+            Connexion.PERMISSION_REQUEST_SEND_SMS -> {
                 if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     // Permission d'envoi de SMS accordée
                     // Vous pouvez effectuer des actions nécessitant cette permission
@@ -114,7 +153,7 @@ class Connexion : AppCompatActivity() {
                 }
             }
 
-            PERMISSION_REQUEST_READ_PHONE_STATE -> {
+            Connexion.PERMISSION_REQUEST_READ_PHONE_STATE -> {
                 if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     // Permission d'accès au numéro de téléphone accordée
                     // Vous pouvez effectuer des actions nécessitant cette permission
@@ -145,12 +184,10 @@ class Connexion : AppCompatActivity() {
         }
     }
 
-    private fun Authentification(phone: String, randomNumber: Int, phoneNumber: String?) {
+    private fun IHMAUTH(Genre: String) {
         val intent = Intent(this, Authentification::class.java)
-        val chaine: String = randomNumber.toString()
-        intent.putExtra("phoneTO", phone);
-        intent.putExtra("codeAUTH", chaine);
-        intent.putExtra("ME", phoneNumber);
+        intent.putExtra("Genre", Genre);
         startActivity(intent)
+        finish()
     }
 }
