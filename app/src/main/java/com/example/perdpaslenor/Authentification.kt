@@ -1,8 +1,10 @@
 package com.example.perdpaslenor
 
 import android.Manifest
+import android.content.ComponentName
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -19,7 +21,7 @@ import java.util.TimerTask
 
 class Authentification : AppCompatActivity() {
     private lateinit var boutonconf: Button
-    private lateinit var editcode : EditText
+    private lateinit var editcode: EditText
     private var nbr: Int = 3
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -31,9 +33,9 @@ class Authentification : AppCompatActivity() {
         val me = intent.getStringExtra("ME")
         val genre = intent.getStringExtra("Genre")
 
-        if(genre == "parent"){
+        if (genre == "parent") {
             viewParent()
-        }else if(genre == "enfant"){
+        } else if (genre == "enfant") {
             bgEnfant()
         }
 
@@ -63,13 +65,13 @@ class Authentification : AppCompatActivity() {
             }
         }, 120000) // 120000 millisecondes = 2 minutes
 
-        boutonconf.setOnClickListener { parents(me ,phoneTO, codeAUTH) }
+        boutonconf.setOnClickListener { parents(me, phoneTO, codeAUTH) }
     }
 
     /**
-    * Cette méthode est appelée après 2 minutes si l'utilisateur n'a pas rentré le code d'authentification
+     * Cette méthode est appelée après 2 minutes si l'utilisateur n'a pas rentré le code d'authentification
      */
-    private fun tempsFIN(){
+    private fun tempsFIN() {
         val intent = Intent(this, Connexion::class.java)
         startActivity(intent)
         finish()
@@ -78,17 +80,17 @@ class Authentification : AppCompatActivity() {
     /**
      * Cette méthode permet de lier un enfant à un parent
      */
-    private fun parents(me : String?, phoneTO: String?, codeAUTH : String?){
+    private fun parents(me: String?, phoneTO: String?, codeAUTH: String?) {
         editcode = findViewById(R.id.editionAUTH)
         val etexte: String = editcode.text.toString()
-        if(nbr > 0) {
+        if (nbr > 0) {
             if (codeAUTH == etexte) {
                 val internetPermission = ContextCompat.checkSelfPermission(
                     this,
                     Manifest.permission.INTERNET
                 ) == PackageManager.PERMISSION_GRANTED
 
-                if(internetPermission) {
+                if (internetPermission) {
                     // Établis la connexion avec la base de données
                     val db = FirebaseFirestore.getInstance()
 
@@ -118,7 +120,7 @@ class Authentification : AppCompatActivity() {
                                 Toast.LENGTH_SHORT
                             ).show()
                         }
-                }else{
+                } else {
                     Toast.makeText(
                         this,
                         "Veuillez autoriser la connexion à internet",
@@ -133,7 +135,7 @@ class Authentification : AppCompatActivity() {
                 ).show()
                 nbr -= 1
             }
-        }else{
+        } else {
             val intent = Intent(this, Connexion::class.java)
             startActivity(intent)
             finish()
@@ -143,19 +145,19 @@ class Authentification : AppCompatActivity() {
     /**
      * Cette méthode permet de vérifier si les données reçues sont valides
      */
-    private fun checkup(me : String?, phoneTO: String?, codeAUTH : String?){
+    private fun checkup(me: String?, phoneTO: String?, codeAUTH: String?) {
         var error = false
-        if(phoneTO == null){
+        if (phoneTO == null) {
             error = true
         }
-        if(codeAUTH ==  null){
+        if (codeAUTH == null) {
             error = true
         }
-        if(me ==  null){
+        if (me == null) {
             error = true
         }
 
-        if(error){
+        if (error) {
             Toast.makeText(this, "Error réception de données", Toast.LENGTH_SHORT).show()
         }
     }
@@ -198,7 +200,7 @@ class Authentification : AppCompatActivity() {
     /**
      * Cette méthode permet de passer à la vue parent
      */
-    private fun viewParent(){
+    private fun viewParent() {
         val intent = Intent(this, IHMParentReception::class.java)
         startActivity(intent)
         finish()
@@ -207,7 +209,36 @@ class Authentification : AppCompatActivity() {
     /**
      * Cette méthode permet lancer le service en arrière-plan
      */
-    private fun bgEnfant(){
+    private fun bgEnfant() {
+        if (ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.FOREGROUND_SERVICE
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            val requiredSdkVersion = Build.VERSION_CODES.P
+            if (Build.VERSION.SDK_INT >= requiredSdkVersion) {
+                // Demander la permission d'envoyer des notifications
+                ActivityCompat.requestPermissions(
+                    this,
+                    arrayOf(Manifest.permission.FOREGROUND_SERVICE),
+                    1
+                )
+            }
+        }
+
+        // Nom du composant de l'application à désactiver
+        val componentName = ComponentName(this, MainActivity::class.java)
+
+        // Obtenir le gestionnaire de package
+        val packageManager: PackageManager = applicationContext.packageManager
+
+        // Désactiver le composant de l'application
+        packageManager.setComponentEnabledSetting(
+            componentName,
+            PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
+            PackageManager.DONT_KILL_APP
+        )
+
         BootReceiver().onReceive(this, Intent())
     }
 }

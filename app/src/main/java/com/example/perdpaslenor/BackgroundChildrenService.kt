@@ -10,6 +10,7 @@ import android.content.pm.PackageManager
 import android.location.LocationManager
 import android.os.Build
 import android.os.IBinder
+import android.telephony.TelephonyManager
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
@@ -35,8 +36,7 @@ class BackgroundChildrenService : Service() {
         locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
     }
 
-    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int
-    {
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         //Programme la tâche suivante toutes les 5 minutes
         executorService.scheduleAtFixedRate(
             Runnable {
@@ -58,17 +58,29 @@ class BackgroundChildrenService : Service() {
                     Manifest.permission.INTERNET
                 ) == PackageManager.PERMISSION_GRANTED
 
-                if(internetPermission) {
+                if (internetPermission) {
+                    var phoneNumber = "999999"
+                    if (ContextCompat.checkSelfPermission(
+                            this,
+                            Manifest.permission.READ_PHONE_STATE
+                        ) == PackageManager.PERMISSION_GRANTED
+                    ) {
+                        val telephonyManager =
+                            getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
+                        phoneNumber =
+                            telephonyManager.line1Number?.takeIf { it.isNotBlank() }.toString()
+                    }
 
                     // Établis la connexion avec la base de données
                     val db = FirebaseFirestore.getInstance()
-                    val documentReference = db.collection("track").document("UalHf4Je6FJOPKlB4SKv") // Utiliser le numéro aléatoire de dylan
-                    val document = documentReference.get()
+                    val documentSnapshot =
+                        db.collection("user").whereEqualTo("numeroEnfant", phoneNumber)
 
                     // Regarde si l'application possède la permission de la localisation
                     if (fineLocationPermission && coarseLocationPermission) {
                         // Obtenir la localisation grâce à Internet
-                        val location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER)
+                        val location =
+                            locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER)
 
                         if (location != null) {
                             val latitude = location.latitude.toString()
@@ -76,29 +88,48 @@ class BackgroundChildrenService : Service() {
 
                             // Map des éléments à ajouter dans la base de données
                             val data = hashMapOf(
+                                "numeroEnfant" to phoneNumber,
                                 "latitude" to latitude,
                                 "longitude" to longitude,
                                 "etat" to "Connecté.",
                                 "date" to Timestamp.now()
                             )
                             // Utiliser set avec merge pour mettre à jour ou créer les champs
-
-                            documentReference.set(data, SetOptions.merge())
-                                .addOnFailureListener { e ->
-                                    Log.e("Firestore", "Error updating/creating document: $e")
+                            documentSnapshot.get().addOnSuccessListener { documents ->
+                                for (document in documents) {
+                                    val documentReference =
+                                        db.collection("user").document(document.id)
+                                    documentReference.set(data, SetOptions.merge())
+                                        .addOnFailureListener { e ->
+                                            Log.e(
+                                                "Firestore",
+                                                "Error updating/creating document: $e"
+                                            )
+                                        }
                                 }
+                            }
                         } else {
                             // Pas de localisation disponible
                             Log.e("Location", "No location available.")
                         }
                     } else {
                         // Pas d'accès à la localisation
-                        val data = hashMapOf("etat" to "L'enfant n'a pas activé le positionnement de l'appareil.")
+                        val data =
+                            hashMapOf("etat" to "L'enfant n'a pas activé le positionnement de l'appareil.")
 
-                        documentReference.set(data, SetOptions.merge())
-                            .addOnFailureListener { e ->
-                                Log.e("Firestore", "Error updating/creating document: $e")
+                        documentSnapshot.get().addOnSuccessListener { documents ->
+                            for (document in documents) {
+                                val documentReference =
+                                    db.collection("user").document(document.id)
+                                documentReference.set(data, SetOptions.merge())
+                                    .addOnFailureListener { e ->
+                                        Log.e(
+                                            "Firestore",
+                                            "Error updating/creating document: $e"
+                                        )
+                                    }
                             }
+                        }
                     }
                 }
             },
@@ -134,11 +165,7 @@ class BackgroundChildrenService : Service() {
         createNotification()
 
         return START_STICKY
-    }
 
-
-    override fun onDestroy() {
-        super.onDestroy()
     }
 
     override fun onBind(intent: Intent?): IBinder? {

@@ -19,8 +19,9 @@ class Connexion : AppCompatActivity() {
         const val PERMISSION_REQUEST_READ_PHONE_STATE = 1
         const val PERMISSION_REQUEST_SEND_SMS = 101
     }
-    private lateinit var number : EditText
-    private lateinit var button : Button
+
+    private lateinit var number: EditText
+    private lateinit var button: Button
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.connexion)
@@ -28,18 +29,19 @@ class Connexion : AppCompatActivity() {
         button = findViewById(R.id.Envoie)
         number = findViewById(R.id.Number)
 
-        button.setOnClickListener{
+        button.setOnClickListener {
             val phone = number.text.toString()
-            if(phone.isNotEmpty()){
-                val randomNumber = (10000 .. 99999).random()
+            if (phone.isNotEmpty()) {
+                val randomNumber = (10000..99999).random()
 
                 val phoneNumber = CheckPermission()
 
-                val obj=SmsManager.getDefault()
+                val obj = SmsManager.getDefault()
                 obj.sendTextMessage(
-                    phone,null,"$randomNumber",
-                    null,null)
-                Authentification(phone, randomNumber,phoneNumber)
+                    phone, null, "$randomNumber",
+                    null, null
+                )
+                Authentification(phone, randomNumber, phoneNumber)
             }
         }
     }
@@ -50,16 +52,32 @@ class Connexion : AppCompatActivity() {
         var permissionSMS = false
         var permissionNUM = false
 
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.SEND_SMS) != PackageManager.PERMISSION_GRANTED) {
+        if (ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.SEND_SMS
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
             // Demander la permission d'envoyer des SMS
-            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.SEND_SMS), PERMISSION_REQUEST_SEND_SMS)
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(Manifest.permission.SEND_SMS),
+                PERMISSION_REQUEST_SEND_SMS
+            )
         } else {
             permissionSMS = true
         }
 
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
+        if (ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.READ_PHONE_STATE
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
             // Demander la permission d'accéder au numéro de téléphone
-            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.READ_PHONE_STATE), PERMISSION_REQUEST_READ_PHONE_STATE)
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(Manifest.permission.READ_PHONE_STATE),
+                PERMISSION_REQUEST_READ_PHONE_STATE
+            )
         } else {
             permissionNUM = true
         }
@@ -75,7 +93,11 @@ class Connexion : AppCompatActivity() {
         return phoneNumber
     }
 
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         when (requestCode) {
             PERMISSION_REQUEST_SEND_SMS -> {
@@ -84,22 +106,36 @@ class Connexion : AppCompatActivity() {
                     // Vous pouvez effectuer des actions nécessitant cette permission
                 } else {
                     // La permission d'envoi de SMS a été refusée
-                    Toast.makeText(this, "Veuillez accepter la permission d'envoie sms", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(
+                        this,
+                        "Veuillez accepter la permission d'envoie sms",
+                        Toast.LENGTH_SHORT
+                    ).show();
                 }
             }
+
             PERMISSION_REQUEST_READ_PHONE_STATE -> {
                 if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     // Permission d'accès au numéro de téléphone accordée
                     // Vous pouvez effectuer des actions nécessitant cette permission
                 } else {
                     // La permission d'accès au numéro de téléphone a été refusée
-                    Toast.makeText(this, "Veuillez accepter la permission information sur le numéro de téléphone", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(
+                        this,
+                        "Veuillez accepter la permission information sur le numéro de téléphone",
+                        Toast.LENGTH_SHORT
+                    ).show();
                 }
             }
         }
     }
+
     private fun getPhoneNumber(): String? {
-        return if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_GRANTED) {
+        return if (ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.READ_PHONE_STATE
+            ) == PackageManager.PERMISSION_GRANTED
+        ) {
             val telephonyManager = getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
             telephonyManager.line1Number?.takeIf { it.isNotBlank() }
         } else {
@@ -109,8 +145,7 @@ class Connexion : AppCompatActivity() {
         }
     }
 
-
-    private fun Authentification(phone : String,  randomNumber: Int, phoneNumber: String?) {
+    private fun Authentification(phone: String, randomNumber: Int, phoneNumber: String?) {
         val intent = Intent(this, Authentification::class.java)
         val chaine: String = randomNumber.toString()
         intent.putExtra("phoneTO", phone);
