@@ -7,13 +7,7 @@ import androidx.appcompat.app.AppCompatActivity
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
-
-        BootReceiver().onReceive(this, Intent())
-
-    }
-
-    override fun onStart() {
-        super.onStart()
+        val intent = Intent(this, HomeActivity::class.java)
+        startActivity(intent)
     }
 }

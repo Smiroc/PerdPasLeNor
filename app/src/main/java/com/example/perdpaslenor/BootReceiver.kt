@@ -1,12 +1,14 @@
 package com.example.perdpaslenor
 
 import android.content.BroadcastReceiver
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Build
-import android.util.Log
-import android.widget.Toast
+import android.widget.ImageView
 import androidx.core.content.ContextCompat
+
 
 public class BootReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
@@ -14,13 +16,16 @@ public class BootReceiver : BroadcastReceiver() {
         val serviceIntent = Intent(context, BackgroundChildrenService::class.java)
 
         fun serviceStart() {
-            // Start the foreground service on supported versions
+            // Lance l'application en arrière-plan si le téléphone à une version supérieure ou égale à Oreo
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                ContextCompat.startForegroundService(context, serviceIntent) // Use ContextCompat for consistency
+
+                ContextCompat.startForegroundService(context, serviceIntent)
             } else context.startService(serviceIntent)
         }
 
-        // Start the service when the device boots
+
+
+        // Lance le service quand le téléphone démarre
         if (intent.action == Intent.ACTION_BOOT_COMPLETED) serviceStart() else serviceStart()
     }
 }
