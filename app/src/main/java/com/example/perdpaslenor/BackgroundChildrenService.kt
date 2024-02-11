@@ -122,10 +122,11 @@ class BackgroundChildrenService : Service() {
 
             // Build the notification
             val notification = NotificationCompat.Builder(this, "Your_Channel_ID")
-                .setContentTitle("Notification Title")
-                .setContentText("Notification Content")
+                .setContentTitle("")
+                .setContentText("")
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
                 .setSmallIcon(R.drawable.ic_launcher_foreground)
-                // Add any other properties you want to set for the notification
+                .setOngoing(true)
                 .build()
 
             // Display the notification

@@ -2,9 +2,6 @@ package com.example.perdpaslenor
 
 import android.content.Intent
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 
 class MainActivity : AppCompatActivity() {
@@ -12,7 +9,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        BootReceiver.onReceive(this, Intent())
+        BootReceiver().onReceive(this, Intent())
 
     }
 

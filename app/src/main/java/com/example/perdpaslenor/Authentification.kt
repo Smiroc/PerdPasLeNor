@@ -205,7 +205,7 @@ class Authentification : AppCompatActivity() {
     }
 
     private fun IHMENFANT(){
-        BootReceiver.onReceive(this, Intent())
+        BootReceiver().onReceive(this, Intent())
 //        val appIntent = Intent(this, BackgroundChildrenService::class.java)
 //        appIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
 //        startService(appIntent)
