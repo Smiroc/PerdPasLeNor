@@ -15,8 +15,7 @@ import androidx.core.content.ContextCompat
 import com.google.firebase.firestore.FirebaseFirestore
 
 
-private var boutonParent: Button? = null
-private var boutonEnfant: Button? = null
+private lateinit var boutonParent: Button
 
 class HomeActivity : AppCompatActivity() {
 
@@ -27,17 +26,13 @@ class HomeActivity : AppCompatActivity() {
         val phoneNumber = CheckPermission()
         BDDBASE(phoneNumber)
 
-        boutonParent = findViewById<View>(R.id.buttonParent) as Button?
-        boutonParent!!.setOnClickListener { Connexion() }
-
-        boutonEnfant = findViewById<View>(R.id.buttonEnfant) as Button?
-        boutonEnfant!!.setOnClickListener { Connexion() }
+        boutonParent = findViewById<View>(R.id.button2) as Button
+        boutonParent.setOnClickListener { Connexion() }
     }
 
     private fun Connexion() {
         val intent = Intent(this, Connexion::class.java)
         startActivity(intent)
-        finish()
     }
 
 

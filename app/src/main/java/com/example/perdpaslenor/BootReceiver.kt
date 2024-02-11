@@ -1,14 +1,10 @@
 package com.example.perdpaslenor
 
 import android.content.BroadcastReceiver
-import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.os.Build
-import android.widget.ImageView
 import androidx.core.content.ContextCompat
-
 
 public class BootReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
@@ -22,7 +18,6 @@ public class BootReceiver : BroadcastReceiver() {
                 ContextCompat.startForegroundService(context, serviceIntent)
             } else context.startService(serviceIntent)
         }
-
 
 
         // Lance le service quand le téléphone démarre

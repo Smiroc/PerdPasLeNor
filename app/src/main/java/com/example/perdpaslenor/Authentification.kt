@@ -6,7 +6,6 @@ import android.content.pm.PackageManager
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
 import android.view.View
 import android.widget.Button
 import android.widget.EditText
@@ -19,8 +18,8 @@ import java.util.Timer
 import java.util.TimerTask
 
 class Authentification : AppCompatActivity() {
-    private var boutonconf: Button? = null
-    private var editcode : EditText? = null
+    private lateinit var boutonconf: Button
+    private lateinit var editcode : EditText
     private var nbr: Int = 3
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -29,20 +28,20 @@ class Authentification : AppCompatActivity() {
 
         val phoneTO = intent.getStringExtra("phoneTO")
         val codeAUTH = intent.getStringExtra("codeAUTH")
-        val ME = intent.getStringExtra("ME")
-        val Genre = intent.getStringExtra("Genre")
+        val me = intent.getStringExtra("ME")
+        val genre = intent.getStringExtra("Genre")
 
-        if(Genre == "parent"){
-            IHMPARENT()
-        }else if(Genre == "enfant"){
-            IHMENFANT()
+        if(genre == "parent"){
+            viewParent()
+        }else if(genre == "enfant"){
+            bgEnfant()
         }
 
-        boutonconf = findViewById<View>(R.id.buttonconfirmation) as Button?
+        boutonconf = (findViewById<View>(R.id.buttonconfirmation) as Button?)!!
 
-        Toast.makeText(this, "Un code authentification a été envoyer", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "Un code authentification a été envoyer", Toast.LENGTH_SHORT).show()
 
-        Chekup(ME, phoneTO ,codeAUTH)
+        checkup(me, phoneTO, codeAUTH)
 
         val timer = Timer()
 
@@ -60,28 +59,28 @@ class Authentification : AppCompatActivity() {
 
         timer.schedule(object : TimerTask() {
             override fun run() {
-                TempsFIN()
+                tempsFIN()
             }
         }, 120000) // 120000 millisecondes = 2 minutes
 
-        //Regarde si la permission de la localisation n'est pas accordée
-        if (!checkLocationPermission()) {
-            // Demande la localisation si elle n'est pas active
-            requestLocationPermission()
-        }
-
-        boutonconf!!.setOnClickListener { Parents(ME,phoneTO,codeAUTH) }
+        boutonconf.setOnClickListener { parents(me ,phoneTO, codeAUTH) }
     }
 
-    private fun TempsFIN(){
+    /**
+    * Cette méthode est appelée après 2 minutes si l'utilisateur n'a pas rentré le code d'authentification
+     */
+    private fun tempsFIN(){
         val intent = Intent(this, Connexion::class.java)
         startActivity(intent)
         finish()
     }
 
-    private fun Parents(ME : String?, phoneTO: String?, codeAUTH : String?){
+    /**
+     * Cette méthode permet de lier un enfant à un parent
+     */
+    private fun parents(me : String?, phoneTO: String?, codeAUTH : String?){
         editcode = findViewById(R.id.editionAUTH)
-        val etexte: String = editcode?.text.toString()
+        val etexte: String = editcode.text.toString()
         if(nbr > 0) {
             if (codeAUTH == etexte) {
                 val internetPermission = ContextCompat.checkSelfPermission(
@@ -93,45 +92,45 @@ class Authentification : AppCompatActivity() {
                     // Établis la connexion avec la base de données
                     val db = FirebaseFirestore.getInstance()
 
-                    // Créez un objet de type Map pour stocker vos données
+                    // Crée un objet de type Map pour stocker vos données
                     val user = hashMapOf(
                         "numeroEnfant" to phoneTO,
-                        "numeroParent" to ME
+                        "numeroParent" to me
                     )
 
                     // Ajoutez les données à votre collection "utilisateurs"
                     db.collection("user")
                         .add(user)
-                        .addOnSuccessListener { documentReference ->
+                        .addOnSuccessListener {
                             // L'ajout des données a réussi
                             Toast.makeText(
                                 this,
                                 "L'ajout des données a réussi",
                                 Toast.LENGTH_SHORT
-                            ).show();
-                            IHMPARENT()
+                            ).show()
+                            viewParent()
                         }
-                        .addOnFailureListener { e ->
+                        .addOnFailureListener {
                             // L'ajout des données a échoué
                             Toast.makeText(
                                 this,
                                 "L'ajout des données a échoué",
                                 Toast.LENGTH_SHORT
-                            ).show();
+                            ).show()
                         }
                 }else{
                     Toast.makeText(
                         this,
                         "Veuillez autoriser la connexion à internet",
                         Toast.LENGTH_SHORT
-                    ).show();
+                    ).show()
                 }
             } else {
                 Toast.makeText(
                     this,
-                    "Le code d'authentification ne correspond pas (il vous reste " + nbr + " essaie avant que le code ne soit plus valide)",
+                    "Le code d'authentification ne correspond pas (il vous reste $nbr essais avant que le code ne soit plus valide)",
                     Toast.LENGTH_SHORT
-                ).show();
+                ).show()
                 nbr -= 1
             }
         }else{
@@ -141,30 +140,29 @@ class Authentification : AppCompatActivity() {
         }
     }
 
-    private fun Chekup(ME : String?, phoneTO: String?, codeAUTH : String?){
+    /**
+     * Cette méthode permet de vérifier si les données reçues sont valides
+     */
+    private fun checkup(me : String?, phoneTO: String?, codeAUTH : String?){
         var error = false
-        if(phoneTO ==  null){
+        if(phoneTO == null){
             error = true
         }
         if(codeAUTH ==  null){
             error = true
         }
-        if(ME ==  null){
+        if(me ==  null){
             error = true
         }
 
-        if(error == true){
+        if(error){
             Toast.makeText(this, "Error réception de données", Toast.LENGTH_SHORT).show()
         }
     }
 
-    private fun checkLocationPermission(): Boolean {
-        return ContextCompat.checkSelfPermission(
-            this,
-            Manifest.permission.ACCESS_FINE_LOCATION
-        ) == PackageManager.PERMISSION_GRANTED
-    }
-
+    /**
+     * Cette méthode permet de demander la permission de la localisation
+     */
     private fun requestLocationPermission() {
         ActivityCompat.requestPermissions(
             this,
@@ -173,7 +171,9 @@ class Authentification : AppCompatActivity() {
         )
     }
 
-    // Cette méthode est automatiquement appellée par le système après qu'il ait accepté ou non la permission de la localisation
+    /**
+     * Cette méthode est automatiquement appellée par le système après qu'il ait accepté ou non la permission de la localisation
+     */
     override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<out String>,
@@ -187,8 +187,7 @@ class Authentification : AppCompatActivity() {
             // Regarde si la permission est accordée
             if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 // Permission accordée
-
-                IHMENFANT()
+                bgEnfant()
             } else {
                 // Permission refusé, re-demande la permission
                 requestLocationPermission()
@@ -196,13 +195,19 @@ class Authentification : AppCompatActivity() {
         }
     }
 
-    private fun IHMPARENT(){
+    /**
+     * Cette méthode permet de passer à la vue parent
+     */
+    private fun viewParent(){
         val intent = Intent(this, IHMParentReception::class.java)
         startActivity(intent)
         finish()
     }
 
-    private fun IHMENFANT(){
+    /**
+     * Cette méthode permet lancer le service en arrière-plan
+     */
+    private fun bgEnfant(){
         BootReceiver().onReceive(this, Intent())
     }
 }

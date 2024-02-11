@@ -11,7 +11,6 @@ import android.location.LocationManager
 import android.os.Build
 import android.os.IBinder
 import android.util.Log
-import android.widget.ImageView
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import com.google.firebase.Timestamp

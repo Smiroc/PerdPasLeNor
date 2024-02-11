@@ -28,8 +28,6 @@ class Connexion : AppCompatActivity() {
         button = findViewById(R.id.Envoie)
         number = findViewById(R.id.Number)
 
-
-
         button.setOnClickListener{
             val phone = number.text.toString()
             if(phone.isNotEmpty()){
@@ -112,8 +110,6 @@ class Connexion : AppCompatActivity() {
     }
 
 
-
-
     private fun Authentification(phone : String,  randomNumber: Int, phoneNumber: String?) {
         val intent = Intent(this, Authentification::class.java)
         val chaine: String = randomNumber.toString()
@@ -121,6 +117,5 @@ class Connexion : AppCompatActivity() {
         intent.putExtra("codeAUTH", chaine);
         intent.putExtra("ME", phoneNumber);
         startActivity(intent)
-        finish()
     }
 }

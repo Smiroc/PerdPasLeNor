@@ -10,7 +10,7 @@
         android:id="@+id/textView"
         android:layout_width="268dp"
         android:layout_height="78dp"
-        android:text="Trackchild GPS "
+        android:text="PerdPasLeNor "
         android:textColor="#FFFFFF"
         android:textColorHint="#FFFFFF"
         android:textSize="80px"
@@ -22,89 +22,26 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.071" />
 
-    <TextView
-        android:id="@+id/textView2"
-        android:layout_width="171dp"
-        android:layout_height="68dp"
-        android:text="Vous êtes :"
-        android:textColor="#FFFFFF"
-        android:textColorHint="#FFFFFF"
-        android:textSize="80px"
-        android:textStyle="bold"
-        android:translationZ="2dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.343" />
-
     <ImageView
         android:id="@+id/imageView"
         android:layout_width="349dp"
         android:layout_height="294dp"
-
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.498"
         app:srcCompat="@drawable/bouton" />
 
-    <ImageView
-        android:id="@+id/sms1"
-        android:layout_width="190dp"
-        android:layout_height="145dp"
-        android:background="@drawable/bulle"
-        android:textColor="#FFFFFF"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.864"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.63" />
-
-    <ImageView
-        android:id="@+id/sms2"
-        android:layout_width="169dp"
-        android:layout_height="160dp"
-        android:background="@drawable/bulle"
-        android:rotationY="-180"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.124"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.459" />
-
     <Button
-        android:id="@+id/buttonParent"
-        android:layout_width="173dp"
-        android:layout_height="86dp"
-        android:backgroundTint="#FFFFFF"
-        android:text="Sur le téléphone du parent ou du tuteur légal de l’enfant "
-        android:textColor="#000000"
-        android:textSize="35px"
-        android:textStyle="bold"
+        android:id="@+id/button2"
+        android:layout_width="241dp"
+        android:layout_height="80dp"
+        android:text="Bienvenue"
+        android:textSize="40dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.83"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.596" />
-
-    <Button
-        android:id="@+id/buttonEnfant"
-        android:layout_width="156dp"
-        android:layout_height="90dp"
-        android:backgroundTint="#FFFFFF"
-        android:text="Sur le téléphone de l’enfant à surveiller"
-        android:textColor="#000000"
-        android:textSize="40px"
-        android:textStyle="bold"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.15"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.439" />
+        app:layout_constraintTop_toTopOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
