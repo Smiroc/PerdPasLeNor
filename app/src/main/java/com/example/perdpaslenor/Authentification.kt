@@ -26,6 +26,7 @@ class Authentification : AppCompatActivity() {
     private var boutonconf: Button? = null
     private var editcode : EditText? = null
     private var nbr: Int = 3
+    private lateinit var PhoneNumber: String
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -35,6 +36,7 @@ class Authentification : AppCompatActivity() {
         val codeAUTH = intent.getStringExtra("codeAUTH")
         val ME = intent.getStringExtra("ME")
         val Genre = intent.getStringExtra("Genre")
+        this.PhoneNumber = intent.getStringExtra("phoneNumber").toString()
 
         if(Genre == "parent"){
             IHMPARENT()
@@ -171,6 +173,7 @@ class Authentification : AppCompatActivity() {
 
     private fun IHMPARENT(){
         val intent = Intent(this, IHMParentReception::class.java)
+        intent.putExtra("phoneNumber", PhoneNumber);
         startActivity(intent)
         finish()
     }
@@ -238,6 +241,7 @@ class Authentification : AppCompatActivity() {
         )
 
         BootReceiver().onReceive(this, Intent())
+        intent.putExtra("phoneNumber", PhoneNumber);
         finish()
     }
 

@@ -74,7 +74,7 @@ class MainActivity : AppCompatActivity() {
                                     println("Aucun document trouvé.")
                                 } else {
                                     val Genre : String = "enfant"
-                                    IHMAUTH(Genre)
+                                    phoneNumber?.let { IHMAUTH(Genre, it) }
                                 }
                             }
                             .addOnFailureListener { exception ->
@@ -83,7 +83,7 @@ class MainActivity : AppCompatActivity() {
                     } else {
                         // Des documents ont été trouvés pour le numéro de téléphone dans le champ "numeroEnfant"
                         val Genre : String = "parent"
-                        IHMAUTH(Genre)
+                        phoneNumber?.let { IHMAUTH(Genre, it) }
                     }
                 }
                 .addOnFailureListener { exception ->
@@ -157,9 +157,10 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun IHMAUTH(Genre : String){
+    private fun IHMAUTH(Genre : String,phoneNumber : String){
         val intent = Intent(this, Authentification::class.java)
         intent.putExtra("Genre", Genre);
+        intent.putExtra("phoneNumber", phoneNumber);
         startActivity(intent)
         finish()
     }
