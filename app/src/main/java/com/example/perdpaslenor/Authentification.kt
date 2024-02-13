@@ -1,8 +1,10 @@
 package com.example.perdpaslenor
 
 import android.Manifest
+import android.content.ComponentName
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -11,6 +13,7 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.google.firebase.firestore.FirebaseFirestore
 import java.math.BigInteger
@@ -172,9 +175,70 @@ class Authentification : AppCompatActivity() {
         finish()
     }
 
-    private fun IHMENFANT(){
-        val intent = Intent(this, BackgroundChildrenService::class.java)
-        startActivity(intent)
+    /**
+     * Cette méthode permet de demander la permission de la localisation
+     */
+    private fun requestLocationPermission() {
+        ActivityCompat.requestPermissions(
+            this,
+            arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
+            1
+        )
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+
+        // Regarde si c'est la demande pour la permission de la localisation qui a été traitée
+        if (requestCode == 1) {
+
+            // Regarde si la permission est accordée
+            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                // Permission accordée
+                IHMENFANT()
+            } else {
+                // Permission refusé, re-demande la permission
+                requestLocationPermission()
+            }
+        }
+    }
+
+    private fun IHMENFANT() {
+        if (ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.FOREGROUND_SERVICE
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            val requiredSdkVersion = Build.VERSION_CODES.P
+            if (Build.VERSION.SDK_INT >= requiredSdkVersion) {
+                // Demander la permission d'envoyer des notifications
+                ActivityCompat.requestPermissions(
+                    this,
+                    arrayOf(Manifest.permission.FOREGROUND_SERVICE),
+                    1
+                )
+            }
+        }
+
+        // Nom du composant de l'application à désactiver
+        val componentName = ComponentName(this, MainActivity::class.java)
+
+        // Obtenir le gestionnaire de package
+        val packageManager: PackageManager = applicationContext.packageManager
+
+        // Désactiver le composant de l'application
+        packageManager.setComponentEnabledSetting(
+            componentName,
+            PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
+            PackageManager.DONT_KILL_APP
+        )
+
+        BootReceiver().onReceive(this, Intent())
         finish()
     }
+
 }

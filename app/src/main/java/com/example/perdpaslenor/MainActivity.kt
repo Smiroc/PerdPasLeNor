@@ -25,7 +25,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.home)
 
-        val phoneNumber = CheckPermission()
+        val phoneNumber = checkPermission()
         BDDBASE(phoneNumber)
 
         boutonParent = findViewById<View>(R.id.button2) as Button?
@@ -100,64 +100,52 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun CheckPermission(): String? {
+    companion object {
+        private const val PERMISSION_REQUEST_CODE = 123 // Remplacez 123 par un code de demande de permission unique
+    }
+
+
+    private fun checkPermission(): String? {
         var phoneNumber: String? = null // Initialisation avec null
+        val permissionSMS = ActivityCompat.checkSelfPermission(this, Manifest.permission.SEND_SMS) == PackageManager.PERMISSION_GRANTED
+        val permissionNUM = ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_GRANTED
 
-        var permissionSMS = false
-        var permissionNUM = false
-
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.SEND_SMS) != PackageManager.PERMISSION_GRANTED) {
-            // Demander la permission d'envoyer des SMS
-            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.SEND_SMS),
-                Connexion.PERMISSION_REQUEST_SEND_SMS
+        if (!permissionSMS || !permissionNUM) {
+            // Demander les permissions manquantes
+            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.SEND_SMS, Manifest.permission.READ_PHONE_STATE),
+                PERMISSION_REQUEST_CODE
             )
         } else {
-            permissionSMS = true
-        }
-
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
-            // Demander la permission d'accéder au numéro de téléphone
-            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.READ_PHONE_STATE),
-                Connexion.PERMISSION_REQUEST_READ_PHONE_STATE
-            )
-        } else {
-            permissionNUM = true
-        }
-
-        if (permissionNUM && permissionSMS) {
             // Les deux permissions sont accordées
             // Vous pouvez maintenant accéder au numéro de téléphone
             phoneNumber = getPhoneNumber()
-        } else {
-            // Vous devrez attendre la réponse de l'utilisateur dans onRequestPermissionsResult()
-        }
 
+            // Faites quelque chose avec le numéro de téléphone
+        }
         return phoneNumber
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        when (requestCode) {
-            Connexion.PERMISSION_REQUEST_SEND_SMS -> {
-                if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    // Permission d'envoi de SMS accordée
-                    // Vous pouvez effectuer des actions nécessitant cette permission
-                } else {
-                    // La permission d'envoi de SMS a été refusée
-                    Toast.makeText(this, "Veuillez accepter la permission d'envoie sms", Toast.LENGTH_SHORT).show();
-                }
-            }
-            Connexion.PERMISSION_REQUEST_READ_PHONE_STATE -> {
-                if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    // Permission d'accès au numéro de téléphone accordée
-                    // Vous pouvez effectuer des actions nécessitant cette permission
-                } else {
-                    // La permission d'accès au numéro de téléphone a été refusée
-                    Toast.makeText(this, "Veuillez accepter la permission information sur le numéro de téléphone", Toast.LENGTH_SHORT).show();
-                }
+        if (requestCode == PERMISSION_REQUEST_CODE) {
+            // Vérifiez si toutes les autorisations ont été accordées
+            val allPermissionsGranted = grantResults.all { it == PackageManager.PERMISSION_GRANTED }
+            if (allPermissionsGranted) {
+                // Toutes les permissions ont été accordées
+                // Vous pouvez maintenant accéder au numéro de téléphone
+                val phoneNumber = getPhoneNumber()
+                // Faites quelque chose avec le numéro de téléphone
+            } else {
+                // Au moins une permission a été refusée
+                // Gérez ce cas ici
+                Toast.makeText(this, "Permissions refusées", Toast.LENGTH_SHORT).show()
+
+                // Redemander les permissions refusées
+                checkPermission()
             }
         }
     }
+
     private fun getPhoneNumber(): String? {
         return if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_GRANTED) {
             val telephonyManager = getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
