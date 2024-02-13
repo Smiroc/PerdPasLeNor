@@ -1,14 +1,7 @@
 package com.example.perdpaslenor
 
-import android.Manifest
-import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.os.Bundle
-import android.telephony.TelephonyManager
-import android.view.View
-import android.widget.Button
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -19,10 +12,11 @@ import java.security.MessageDigest
 
 private var boutonParent : Button? = null
 
-class MainActivity : AppCompatActivity() {
 
+class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         setContentView(R.layout.home)
 
         val phoneNumber = checkPermission()
@@ -161,7 +155,7 @@ class MainActivity : AppCompatActivity() {
         val intent = Intent(this, Authentification::class.java)
         intent.putExtra("Genre", Genre);
         intent.putExtra("phoneNumber", phoneNumber);
+
         startActivity(intent)
-        finish()
     }
 }

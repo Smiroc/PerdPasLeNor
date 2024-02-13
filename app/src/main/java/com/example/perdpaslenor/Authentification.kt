@@ -21,10 +21,9 @@ import java.security.MessageDigest
 import java.util.Timer
 import java.util.TimerTask
 
-
 class Authentification : AppCompatActivity() {
-    private var boutonconf: Button? = null
-    private var editcode : EditText? = null
+    private lateinit var boutonconf: Button
+    private lateinit var editcode: EditText
     private var nbr: Int = 3
     private lateinit var PhoneNumber: String
 
@@ -34,21 +33,23 @@ class Authentification : AppCompatActivity() {
 
         val phoneTO = intent.getStringExtra("phoneTO")
         val codeAUTH = intent.getStringExtra("codeAUTH")
+
         val ME = intent.getStringExtra("ME")
         val Genre = intent.getStringExtra("Genre")
         this.PhoneNumber = intent.getStringExtra("phoneNumber").toString()
 
-        if(Genre == "parent"){
-            IHMPARENT()
-        }else if(Genre == "enfant"){
-            IHMENFANT()
+
+        if (genre == "parent") {
+            viewParent()
+        } else if (genre == "enfant") {
+            bgEnfant()
         }
 
-        boutonconf = findViewById<View>(R.id.buttonconfirmation) as Button?
+        boutonconf = (findViewById<View>(R.id.buttonconfirmation) as Button?)!!
 
-        Toast.makeText(this, "Un code authentification a été envoyer", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "Un code authentification a été envoyer", Toast.LENGTH_SHORT).show()
 
-        Chekup(ME, phoneTO ,codeAUTH)
+        checkup(me, phoneTO, codeAUTH)
 
         val timer = Timer()
 
@@ -66,18 +67,22 @@ class Authentification : AppCompatActivity() {
 
         timer.schedule(object : TimerTask() {
             override fun run() {
-                TempsFIN()
+                tempsFIN()
             }
         }, 120000) // 120000 millisecondes = 2 minutes
 
-        boutonconf!!.setOnClickListener { Parents(ME,phoneTO,codeAUTH) }
+        boutonconf.setOnClickListener { parents(me, phoneTO, codeAUTH) }
     }
 
-    private fun TempsFIN(){
+    /**
+     * Cette méthode est appelée après 2 minutes si l'utilisateur n'a pas rentré le code d'authentification
+     */
+    private fun tempsFIN() {
         val intent = Intent(this, Connexion::class.java)
         startActivity(intent)
         finish()
     }
+
 
     fun encryptMD5(input: String): String {
         val md = MessageDigest.getInstance("MD5")
@@ -96,82 +101,126 @@ class Authentification : AppCompatActivity() {
         val encryptedPhoneTO = phoneTO?.let { encryptMD5(it) }
         val encryptedME = ME?.let { encryptMD5(it) }
         if(nbr > 0) {
+
             if (codeAUTH == etexte) {
                 val internetPermission = ContextCompat.checkSelfPermission(
                     this,
                     Manifest.permission.INTERNET
                 ) == PackageManager.PERMISSION_GRANTED
 
-                if(internetPermission) {
+                if (internetPermission) {
                     // Établis la connexion avec la base de données
                     val db = FirebaseFirestore.getInstance()
 
-                    // Créez un objet de type Map pour stocker vos données
+                    // Crée un objet de type Map pour stocker vos données
                     val user = hashMapOf(
+
                         "numeroEnfant" to encryptedPhoneTO,
                         "numeroParent" to encryptedME
+
                     )
 
                     // Ajoutez les données à votre collection "utilisateurs"
                     db.collection("user")
                         .add(user)
-                        .addOnSuccessListener { documentReference ->
+                        .addOnSuccessListener {
                             // L'ajout des données a réussi
                             Toast.makeText(
                                 this,
                                 "L'ajout des données a réussi",
                                 Toast.LENGTH_SHORT
-                            ).show();
-                            IHMPARENT()
+                            ).show()
+                            viewParent()
                         }
-                        .addOnFailureListener { e ->
+                        .addOnFailureListener {
                             // L'ajout des données a échoué
                             Toast.makeText(
                                 this,
                                 "L'ajout des données a échoué",
                                 Toast.LENGTH_SHORT
-                            ).show();
+                            ).show()
                         }
-                }else{
+                } else {
                     Toast.makeText(
                         this,
                         "Veuillez autoriser la connexion à internet",
                         Toast.LENGTH_SHORT
-                    ).show();
+                    ).show()
                 }
             } else {
                 Toast.makeText(
                     this,
-                    "Le code d'authentification ne correspond pas (il vous reste " + nbr + " essaie avant que le code ne soit plus valide)",
+                    "Le code d'authentification ne correspond pas (il vous reste $nbr essais avant que le code ne soit plus valide)",
                     Toast.LENGTH_SHORT
-                ).show();
+                ).show()
                 nbr -= 1
             }
-        }else{
+        } else {
             val intent = Intent(this, Connexion::class.java)
             startActivity(intent)
             finish()
         }
     }
 
-    private fun Chekup(ME : String?, phoneTO: String?, codeAUTH : String?){
+    /**
+     * Cette méthode permet de vérifier si les données reçues sont valides
+     */
+    private fun checkup(me: String?, phoneTO: String?, codeAUTH: String?) {
         var error = false
-        if(phoneTO ==  null){
+        if (phoneTO == null) {
             error = true
         }
-        if(codeAUTH ==  null){
+        if (codeAUTH == null) {
             error = true
         }
-        if(ME ==  null){
+        if (me == null) {
             error = true
         }
 
-        if(error == true){
+        if (error) {
             Toast.makeText(this, "Error réception de données", Toast.LENGTH_SHORT).show()
         }
     }
 
-    private fun IHMPARENT(){
+    /**
+     * Cette méthode permet de demander la permission de la localisation
+     */
+    private fun requestLocationPermission() {
+        ActivityCompat.requestPermissions(
+            this,
+            arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
+            1
+        )
+    }
+
+    /**
+     * Cette méthode est automatiquement appellée par le système après qu'il ait accepté ou non la permission de la localisation
+     */
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+
+        // Regarde si c'est la demande pour la permission de la localisation qui a été traitée
+        if (requestCode == 1) {
+
+            // Regarde si la permission est accordée
+            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                // Permission accordée
+                bgEnfant()
+            } else {
+                // Permission refusé, re-demande la permission
+                requestLocationPermission()
+            }
+        }
+    }
+
+    /**
+     * Cette méthode permet de passer à la vue parent
+     */
+    private fun viewParent() {
         val intent = Intent(this, IHMParentReception::class.java)
         intent.putExtra("phoneNumber", PhoneNumber);
         startActivity(intent)
@@ -211,6 +260,7 @@ class Authentification : AppCompatActivity() {
     }
 
     private fun IHMENFANT() {
+
         if (ActivityCompat.checkSelfPermission(
                 this,
                 Manifest.permission.FOREGROUND_SERVICE
@@ -241,8 +291,10 @@ class Authentification : AppCompatActivity() {
         )
 
         BootReceiver().onReceive(this, Intent())
+
         intent.putExtra("phoneNumber", PhoneNumber);
         finish()
+
     }
 
 }
