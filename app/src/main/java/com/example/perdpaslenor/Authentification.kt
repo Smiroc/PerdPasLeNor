@@ -25,6 +25,7 @@ class Authentification : AppCompatActivity() {
     private lateinit var boutonconf: Button
     private lateinit var editcode: EditText
     private var nbr: Int = 3
+    private lateinit var PhoneNumber: String
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -32,8 +33,11 @@ class Authentification : AppCompatActivity() {
 
         val phoneTO = intent.getStringExtra("phoneTO")
         val codeAUTH = intent.getStringExtra("codeAUTH")
-        val me = intent.getStringExtra("ME")
-        val genre = intent.getStringExtra("Genre")
+
+        val ME = intent.getStringExtra("ME")
+        val Genre = intent.getStringExtra("Genre")
+        this.PhoneNumber = intent.getStringExtra("phoneNumber").toString()
+
 
         if (genre == "parent") {
             viewParent()
@@ -90,12 +94,28 @@ class Authentification : AppCompatActivity() {
         return hashtext
     }
 
+
+
+    fun encryptMD5(input: String): String {
+        val md = MessageDigest.getInstance("MD5")
+        val messageDigest = md.digest(input.toByteArray())
+        val no = BigInteger(1, messageDigest)
+        var hashtext: String = no.toString(16)
+        while (hashtext.length < 32) {
+            hashtext = "0$hashtext"
+        }
+        return hashtext
+    }
+
+
     private fun Parents(ME : String?, phoneTO: String?, codeAUTH : String?){
         editcode = findViewById(R.id.editionAUTH)
         val etexte: String = editcode?.text.toString()
         val encryptedPhoneTO = phoneTO?.let { encryptMD5(it) }
         val encryptedME = ME?.let { encryptMD5(it) }
         if(nbr > 0) {
+
+
             if (codeAUTH == etexte) {
                 val internetPermission = ContextCompat.checkSelfPermission(
                     this,
@@ -216,14 +236,45 @@ class Authentification : AppCompatActivity() {
      */
     private fun viewParent() {
         val intent = Intent(this, IHMParentReception::class.java)
+        intent.putExtra("phoneNumber", PhoneNumber);
         startActivity(intent)
         finish()
     }
 
     /**
-     * Cette méthode permet lancer le service en arrière-plan
+     * Cette méthode permet de demander la permission de la localisation
      */
-    private fun bgEnfant() {
+    private fun requestLocationPermission() {
+        ActivityCompat.requestPermissions(
+            this,
+            arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
+            1
+        )
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+
+        // Regarde si c'est la demande pour la permission de la localisation qui a été traitée
+        if (requestCode == 1) {
+
+            // Regarde si la permission est accordée
+            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                // Permission accordée
+                IHMENFANT()
+            } else {
+                // Permission refusé, re-demande la permission
+                requestLocationPermission()
+            }
+        }
+    }
+
+    private fun IHMENFANT() {
+
         if (ActivityCompat.checkSelfPermission(
                 this,
                 Manifest.permission.FOREGROUND_SERVICE
@@ -254,5 +305,10 @@ class Authentification : AppCompatActivity() {
         )
 
         BootReceiver().onReceive(this, Intent())
+
+        intent.putExtra("phoneNumber", PhoneNumber);
+        finish()
+
     }
+
 }
