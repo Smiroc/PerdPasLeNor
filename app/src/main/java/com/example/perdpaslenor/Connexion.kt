@@ -34,7 +34,7 @@ class Connexion : AppCompatActivity() {
             if (phone.isNotEmpty()) {
                 val randomNumber = (10000..99999).random()
 
-                val phoneNumber = CheckPermission()
+                val phoneNumber = checkPermission()
 
                 val obj = SmsManager.getDefault()
                 obj.sendTextMessage(
@@ -46,7 +46,7 @@ class Connexion : AppCompatActivity() {
         }
     }
 
-    private fun CheckPermission(): String? {
+    private fun checkPermission(): String? {
         var phoneNumber: String? = null // Initialisation avec null
 
         var permissionSMS = false
@@ -117,7 +117,6 @@ class Connexion : AppCompatActivity() {
             PERMISSION_REQUEST_READ_PHONE_STATE -> {
                 if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     // Permission d'accès au numéro de téléphone accordée
-                    // Vous pouvez effectuer des actions nécessitant cette permission
                 } else {
                     // La permission d'accès au numéro de téléphone a été refusée
                     Toast.makeText(
@@ -138,11 +137,10 @@ class Connexion : AppCompatActivity() {
         ) {
             val telephonyManager = getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
             telephonyManager.line1Number?.takeIf { it.isNotBlank() }
-        } else {
-            // La permission n'est pas accordée
-            // Gérer le cas où l'application n'a pas la permission d'accéder au numéro de téléphone
+        } else
+        // La permission n'est pas accordée
+        // Gérer le cas où l'application n'a pas la permission d'accéder au numéro de téléphone
             null
-        }
     }
 
     private fun Authentification(phone: String, randomNumber: Int, phoneNumber: String?) {
