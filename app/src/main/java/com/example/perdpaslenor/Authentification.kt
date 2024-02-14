@@ -262,8 +262,11 @@ class Authentification : AppCompatActivity() {
         )
 
         BootReceiver().onReceive(this, Intent())
-
-        intent.putExtra("phoneNumber", phoneNumber);
         finish()
+
+        // Retour sur l'écran d'accueil du téléphone
+        val intent = Intent(Intent.ACTION_MAIN)
+        intent.addCategory(Intent.CATEGORY_HOME)
+        startActivity(intent)
     }
 }

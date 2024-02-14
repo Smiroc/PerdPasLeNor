@@ -12,11 +12,14 @@ import android.os.Build
 import android.os.IBinder
 import android.telephony.TelephonyManager
 import android.util.Log
+import android.telephony.SubscriptionManager
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
+import java.math.BigInteger
+import java.security.MessageDigest
 import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.TimeUnit
@@ -25,6 +28,8 @@ import java.util.concurrent.TimeUnit
 class BackgroundChildrenService : Service() {
     private lateinit var executorService: ScheduledExecutorService
     private lateinit var locationManager: LocationManager
+    private lateinit var phoneCrypted: String
+    private lateinit var phoneNumber: String
 
     override fun onCreate() {
         super.onCreate()
@@ -37,6 +42,7 @@ class BackgroundChildrenService : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+
         //Programme la tâche suivante toutes les 5 minutes
         executorService.scheduleAtFixedRate(
             Runnable {
@@ -59,22 +65,17 @@ class BackgroundChildrenService : Service() {
                 ) == PackageManager.PERMISSION_GRANTED
 
                 if (internetPermission) {
-                    var phoneNumber = "999999"
-                    if (ContextCompat.checkSelfPermission(
-                            this,
-                            Manifest.permission.READ_PHONE_STATE
-                        ) == PackageManager.PERMISSION_GRANTED
-                    ) {
+                    // Récupère le numéro de téléphone
                         val telephonyManager =
                             getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
-                        phoneNumber =
-                            telephonyManager.line1Number?.takeIf { it.isNotBlank() }.toString()
-                    }
+                         phoneNumber =
+                            telephonyManager.getLine1Number() ?: return@Runnable
+                         phoneCrypted = encryptMD5(phoneNumber)
 
                     // Établis la connexion avec la base de données
                     val db = FirebaseFirestore.getInstance()
                     val documentSnapshot =
-                        db.collection("user").whereEqualTo("numeroEnfant", phoneNumber)
+                        db.collection("user").whereEqualTo("numeroEnfant", phoneCrypted)
 
                     // Regarde si l'application possède la permission de la localisation
                     if (fineLocationPermission && coarseLocationPermission) {
@@ -88,7 +89,6 @@ class BackgroundChildrenService : Service() {
 
                             // Map des éléments à ajouter dans la base de données
                             val data = hashMapOf(
-                                "numeroEnfant" to phoneNumber,
                                 "latitude" to latitude,
                                 "longitude" to longitude,
                                 "etat" to "Connecté.",
@@ -112,6 +112,27 @@ class BackgroundChildrenService : Service() {
                         } else {
                             // Pas de localisation disponible
                             Log.e("Location", "No location available.")
+
+                            // Map des éléments à ajouter dans la base de données
+                            val data = hashMapOf(
+                                "etat" to "L'enfant n'a pas activé le positionnement de l'appareil.",
+                                "date" to Timestamp.now()
+                            )
+
+                            // Ajoute les éléments dans la base de données
+                            documentSnapshot.get().addOnSuccessListener { documents ->
+                                for (document in documents) {
+                                    val documentReference =
+                                        db.collection("user").document(document.id)
+                                    documentReference.set(data, SetOptions.merge())
+                                        .addOnFailureListener { e ->
+                                            Log.e(
+                                                "Firestore",
+                                                "Error updating/creating document: $e"
+                                            )
+                                        }
+                                }
+                            }
                         }
                     } else {
                         // Pas d'accès à la localisation
@@ -167,6 +188,17 @@ class BackgroundChildrenService : Service() {
 
         return START_STICKY
 
+    }
+
+   private fun encryptMD5(input: String): String {
+        val md = MessageDigest.getInstance("MD5")
+        val messageDigest = md.digest(input.toByteArray())
+        val no = BigInteger(1, messageDigest)
+        var hashtext: String = no.toString(16)
+        while (hashtext.length < 32) {
+            hashtext = "0$hashtext"
+        }
+        return hashtext
     }
 
     override fun onBind(intent: Intent?): IBinder? {
