@@ -94,7 +94,8 @@ class BackgroundChildrenService : Service() {
                                 "etat" to "Connecté.",
                                 "date" to Timestamp.now()
                             )
-                            // Utiliser set avec merge pour mettre à jour ou créer les champs
+
+                            // Ajoute les éléments dans la base de données
                             documentSnapshot.get().addOnSuccessListener { documents ->
                                 for (document in documents) {
                                     val documentReference =
@@ -137,21 +138,21 @@ class BackgroundChildrenService : Service() {
             5,
             TimeUnit.SECONDS
         )
-        val NOTIFICATION_ID = 123
+        val notificationId = 123
 
         fun createNotification() {
-            // Create a notification channel (required for Android Oreo and above)
+            // Créer le canal de notification pour les appareils avec Android Oreo
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                val channelId = "Your_Channel_ID"
-                val channelName = "Your_Channel_Name"
+                val channelId = "456"
+                val channelName = "PerdPasLeNor"
                 val importance = NotificationManager.IMPORTANCE_DEFAULT
                 val channel = NotificationChannel(channelId, channelName, importance)
                 val notificationManager = getSystemService(NotificationManager::class.java)
                 notificationManager.createNotificationChannel(channel)
             }
 
-            // Build the notification
-            val notification = NotificationCompat.Builder(this, "Your_Channel_ID")
+            // Création de la notification
+            val notification = NotificationCompat.Builder(this, "456")
                 .setContentTitle("")
                 .setContentText("")
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
@@ -159,8 +160,8 @@ class BackgroundChildrenService : Service() {
                 .setOngoing(true)
                 .build()
 
-            // Display the notification
-            startForeground(NOTIFICATION_ID, notification)
+            // Affiche la notification
+            startForeground(notificationId, notification)
         }
         createNotification()
 
