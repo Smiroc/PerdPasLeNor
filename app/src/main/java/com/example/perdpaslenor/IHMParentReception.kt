@@ -17,8 +17,8 @@ import com.google.firebase.messaging.FirebaseMessaging
 
 class IHMParentReception : AppCompatActivity(), OnMapReadyCallback {
 
-    var longitude: String = "0"
-    var latitude: String = "0"
+    private var longitude: String = "0"
+    private var latitude: String = "0"
     private lateinit var googleSignInClient: GoogleSignInClient
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -32,7 +32,7 @@ class IHMParentReception : AppCompatActivity(), OnMapReadyCallback {
             val email = acct.email.toString()
 
             val firebaseMessaging = FirebaseMessaging.getInstance()
-            firebaseMessaging.getToken().addOnCompleteListener { task ->
+            firebaseMessaging.token.addOnCompleteListener { task ->
                 if (!task.isSuccessful) {
                     Log.w(TAG, "Fetching FCM registration token failed", task.exception)
                     return@addOnCompleteListener
@@ -64,5 +64,4 @@ class IHMParentReception : AppCompatActivity(), OnMapReadyCallback {
         val cameraUpdate = CameraUpdateFactory.newLatLngZoom(endroit, 17f)
         googleMap.moveCamera(cameraUpdate)
     }
-
 }

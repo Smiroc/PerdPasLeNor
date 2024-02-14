@@ -41,7 +41,7 @@ class Connexion : AppCompatActivity() {
                     phone, null, "$randomNumber",
                     null, null
                 )
-                Authentification(phone, randomNumber, phoneNumber)
+                authentification(phone, randomNumber, phoneNumber)
             }
         }
     }
@@ -103,14 +103,13 @@ class Connexion : AppCompatActivity() {
             PERMISSION_REQUEST_SEND_SMS -> {
                 if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     // Permission d'envoi de SMS accordée
-                    // Vous pouvez effectuer des actions nécessitant cette permission
                 } else {
                     // La permission d'envoi de SMS a été refusée
                     Toast.makeText(
                         this,
-                        "Veuillez accepter la permission d'envoie sms",
+                        "Veuillez accepter la permission d'envoi sms",
                         Toast.LENGTH_SHORT
-                    ).show();
+                    ).show()
                 }
             }
 
@@ -123,7 +122,7 @@ class Connexion : AppCompatActivity() {
                         this,
                         "Veuillez accepter la permission information sur le numéro de téléphone",
                         Toast.LENGTH_SHORT
-                    ).show();
+                    ).show()
                 }
             }
         }
@@ -143,12 +142,12 @@ class Connexion : AppCompatActivity() {
             null
     }
 
-    private fun Authentification(phone: String, randomNumber: Int, phoneNumber: String?) {
+    private fun authentification(phone: String, randomNumber: Int, phoneNumber: String?) {
         val intent = Intent(this, Authentification::class.java)
         val chaine: String = randomNumber.toString()
-        intent.putExtra("phoneTO", phone);
-        intent.putExtra("codeAUTH", chaine);
-        intent.putExtra("ME", phoneNumber);
+        intent.putExtra("phoneTO", phone)
+        intent.putExtra("codeAUTH", chaine)
+        intent.putExtra("ME", phoneNumber)
         startActivity(intent)
     }
 }
