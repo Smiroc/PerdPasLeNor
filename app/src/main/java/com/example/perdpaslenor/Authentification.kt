@@ -27,6 +27,7 @@ class Authentification : AppCompatActivity() {
     private var editcode : EditText? = null
     private var nbr: Int = 3
     private lateinit var PhoneNumber: String
+    private val timer = Timer()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -49,8 +50,6 @@ class Authentification : AppCompatActivity() {
         Toast.makeText(this, "Un code authentification a été envoyer", Toast.LENGTH_SHORT).show();
 
         Chekup(ME, phoneTO ,codeAUTH)
-
-        val timer = Timer()
 
         timer.schedule(object : TimerTask() {
             override fun run() {
@@ -172,6 +171,7 @@ class Authentification : AppCompatActivity() {
     }
 
     private fun IHMPARENT(){
+        timer.cancel()
         val intent = Intent(this, IHMParentReception::class.java)
         intent.putExtra("phoneNumber", PhoneNumber);
         startActivity(intent)
@@ -211,6 +211,7 @@ class Authentification : AppCompatActivity() {
     }
 
     private fun IHMENFANT() {
+        timer.cancel()
         if (ActivityCompat.checkSelfPermission(
                 this,
                 Manifest.permission.FOREGROUND_SERVICE
