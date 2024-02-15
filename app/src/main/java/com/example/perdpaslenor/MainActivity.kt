@@ -20,7 +20,6 @@ import java.security.MessageDigest
 private var boutonParent : Button? = null
 
 class MainActivity : AppCompatActivity() {
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.home)
@@ -162,6 +161,5 @@ class MainActivity : AppCompatActivity() {
         intent.putExtra("Genre", Genre);
         intent.putExtra("phoneNumber", phoneNumber);
         startActivity(intent)
-        finish()
     }
 }
