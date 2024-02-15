@@ -19,17 +19,18 @@ class IHMParentReception : AppCompatActivity(), OnMapReadyCallback {
 
     private var longitude: String = "0"
     private var latitude: String = "0"
-    private lateinit var googleSignInClient: GoogleSignInClient
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.ihm_parent_reception)
 
-        val acct = GoogleSignIn.getLastSignedInAccount(this)
-        Log.w(TAG, "Fetching FCM registration token failed", )
+        val intent = intent
+        val phoneNumber = intent.getStringExtra("phoneNumber")
 
-        if(acct != null){
-            val email = acct.email.toString()
+        if(phoneNumber != null){
+            val phoneCrypted = Authentification().encryptMD5(phoneNumber)
+
+            Log.d(TAG, "onCreate: $phoneNumber")
 
             val firebaseMessaging = FirebaseMessaging.getInstance()
             firebaseMessaging.token.addOnCompleteListener { task ->
@@ -40,11 +41,12 @@ class IHMParentReception : AppCompatActivity(), OnMapReadyCallback {
 
                 // Update the child's parent in the database
                 val db = FirebaseFirestore.getInstance()
-                val documentSnapshot = db.collection("track").whereEqualTo("parent", email)
+                val documentSnapshot = db.collection("user").whereEqualTo("numeroParent", phoneCrypted)
 
                 // Get the document data
                 val documentData = documentSnapshot.get().addOnSuccessListener { documents ->
                     for (document in documents) {
+
                         this.latitude = document.get("latitude").toString()
                         this.longitude = document.get("longitude").toString()
                     }

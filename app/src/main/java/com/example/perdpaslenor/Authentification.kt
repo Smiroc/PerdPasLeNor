@@ -84,7 +84,7 @@ class Authentification : AppCompatActivity() {
         finish()
     }
 
-    private fun encryptMD5(input: String): String {
+    fun encryptMD5(input: String): String {
         val md = MessageDigest.getInstance("MD5")
         val messageDigest = md.digest(input.toByteArray())
         val no = BigInteger(1, messageDigest)
@@ -235,6 +235,7 @@ class Authentification : AppCompatActivity() {
      */
     private fun viewParent() {
         val intent = Intent(this, IHMParentReception::class.java)
+        intent.putExtra("phoneNumber", phoneNumber)
         startActivity(intent)
         finish()
     }
