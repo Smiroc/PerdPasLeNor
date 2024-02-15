@@ -106,11 +106,13 @@ class Connexion : AppCompatActivity() {
                     // Permission d'envoi de SMS accordée
                 } else {
                     // La permission d'envoi de SMS a été refusée
-                    Toast.makeText(
-                        this,
-                        "Veuillez accepter la permission d'envoi sms",
-                        Toast.LENGTH_SHORT
-                    ).show()
+                    runOnUiThread {
+                        Toast.makeText(
+                            this,
+                            "Veuillez accepter la permission d'envoi sms",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
                 }
             }
 
@@ -119,11 +121,13 @@ class Connexion : AppCompatActivity() {
                     // Permission d'accès au numéro de téléphone accordée
                 } else {
                     // La permission d'accès au numéro de téléphone a été refusée
-                    Toast.makeText(
-                        this,
-                        "Veuillez accepter la permission information sur le numéro de téléphone",
-                        Toast.LENGTH_SHORT
-                    ).show()
+                    runOnUiThread {
+                        Toast.makeText(
+                            this,
+                            "Veuillez accepter la permission information sur le numéro de téléphone",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
                 }
             }
         }

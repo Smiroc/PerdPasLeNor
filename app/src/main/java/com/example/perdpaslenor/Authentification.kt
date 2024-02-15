@@ -46,8 +46,9 @@ class Authentification : AppCompatActivity() {
         }
 
         boutonconf = (findViewById<View>(R.id.buttonconfirmation) as Button?)!!
-
-        Toast.makeText(this, "Un code d'authentification a été envoyer", Toast.LENGTH_SHORT).show()
+        runOnUiThread {
+            Toast.makeText(this, "Un code d'authentification a été envoyer", Toast.LENGTH_SHORT).show()
+        }
 
         checkup(me, phoneTO, codeAUTH)
 
@@ -127,35 +128,43 @@ class Authentification : AppCompatActivity() {
                         .add(user)
                         .addOnSuccessListener {
                             // L'ajout des données a réussi
-                            Toast.makeText(
-                                this,
-                                "L'ajout des données a réussi",
-                                Toast.LENGTH_SHORT
-                            ).show()
+                            runOnUiThread {
+                                Toast.makeText(
+                                    this,
+                                    "L'ajout des données a réussi",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
                             viewParent()
                         }
                         .addOnFailureListener {
                             // L'ajout des données a échoué
-                            Toast.makeText(
-                                this,
-                                "L'ajout des données a échoué",
-                                Toast.LENGTH_SHORT
-                            ).show()
+                            runOnUiThread {
+                                Toast.makeText(
+                                    this,
+                                    "L'ajout des données a échoué",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
                         }
                 } else {
-                    Toast.makeText(
-                        this,
-                        "Veuillez autoriser la connexion à internet",
-                        Toast.LENGTH_SHORT
-                    ).show()
+                    runOnUiThread {
+                        Toast.makeText(
+                            this,
+                            "Veuillez autoriser la connexion à internet",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
                 }
             } else {
-                Toast.makeText(
-                    this,
-                    "Le code d'authentification ne correspond pas (il vous reste $nbr essais avant que le code ne soit plus valide)",
-                    Toast.LENGTH_SHORT
-                ).show()
-                nbr -= 1
+                runOnUiThread {
+                    Toast.makeText(
+                        this,
+                        "Le code d'authentification ne correspond pas (il vous reste $nbr essais avant que le code ne soit plus valide)",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    nbr -= 1
+                }
             }
         } else {
             val intent = Intent(this, Connexion::class.java)
@@ -180,7 +189,9 @@ class Authentification : AppCompatActivity() {
         }
 
         if (error) {
-            Toast.makeText(this, "Error réception de données", Toast.LENGTH_SHORT).show()
+            runOnUiThread {
+                Toast.makeText(this, "Error réception de données", Toast.LENGTH_SHORT).show()
+            }
         }
     }
 
