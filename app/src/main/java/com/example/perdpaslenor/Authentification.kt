@@ -1,5 +1,4 @@
 package com.example.perdpaslenor
-
 import android.Manifest
 import android.content.ComponentName
 import android.content.ContentValues.TAG
@@ -24,11 +23,14 @@ import java.security.MessageDigest
 import java.util.Timer
 import java.util.TimerTask
 
+/**
+ * Cette classe permet de gérer l'authentification
+ */
 class Authentification : AppCompatActivity() {
     private lateinit var boutonconf: Button
     private lateinit var editcode: EditText
     private var nbr: Int = 3
-    private lateinit var PhoneNumber: String
+    private lateinit var phoneNumber: String
     private val timer = Timer()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -40,7 +42,8 @@ class Authentification : AppCompatActivity() {
 
         val me = intent.getStringExtra("ME")
         val genre = intent.getStringExtra("Genre")
-        this.PhoneNumber = intent.getStringExtra("phoneNumber").toString()
+        this.phoneNumber = intent.getStringExtra("phoneNumber").toString()
+
 
         if (genre == "parent") {
             viewParent()
@@ -52,7 +55,7 @@ class Authentification : AppCompatActivity() {
 
         boutonconf = (findViewById<View>(R.id.buttonconfirmation) as Button?)!!
 
-        Toast.makeText(this, "Un code authentification a été envoyer", Toast.LENGTH_SHORT).show()
+        Toast.makeText(this, "Un code d'authentification a été envoyer", Toast.LENGTH_SHORT).show()
 
         checkup(me, phoneTO, codeAUTH)
 
@@ -74,7 +77,7 @@ class Authentification : AppCompatActivity() {
             }
         }, 120000) // 120000 millisecondes = 2 minutes
 
-        boutonconf.setOnClickListener { Parents(me, phoneTO, codeAUTH) }
+        boutonconf.setOnClickListener { parents(me, phoneTO, codeAUTH) }
     }
 
     /**
@@ -85,8 +88,8 @@ class Authentification : AppCompatActivity() {
         startActivity(intent)
         finish()
     }
-    
-    fun encryptMD5(input: String): String {
+
+    private fun encryptMD5(input: String): String {
         val md = MessageDigest.getInstance("MD5")
         val messageDigest = md.digest(input.toByteArray())
         val no = BigInteger(1, messageDigest)
@@ -97,13 +100,19 @@ class Authentification : AppCompatActivity() {
         return hashtext
     }
 
-    private fun Parents(ME : String?, phoneTO: String?, codeAUTH : String?){
+    /**
+     * Cette méthode permet de lier un enfant à un parent
+     */
+    private fun parents(me: String?, phoneTO: String?, codeAUTH: String?) {
         editcode = findViewById(R.id.editionAUTH)
-        val etexte: String = editcode?.text.toString()
+        val etexte: String = editcode.text.toString()
         val encryptedPhoneTO = phoneTO?.let { encryptMD5(it) }
-        val encryptedME = ME?.let { encryptMD5(it) }
-        if(nbr > 0) {
+        val encryptedME = me?.let { encryptMD5(it) }
+
+        if (nbr > 0) {
+
             if (codeAUTH == etexte) {
+
                 val internetPermission = ContextCompat.checkSelfPermission(
                     this,
                     Manifest.permission.INTERNET
@@ -115,10 +124,8 @@ class Authentification : AppCompatActivity() {
 
                     // Crée un objet de type Map pour stocker vos données
                     val user = hashMapOf(
-
                         "numeroEnfant" to encryptedPhoneTO,
                         "numeroParent" to encryptedME
-
                     )
 
                     // Ajoutez les données à votre collection "utilisateurs"
@@ -223,11 +230,12 @@ class Authentification : AppCompatActivity() {
      */
     private fun viewParent() {
         val intent = Intent(this, IHMParentReception::class.java)
-        intent.putExtra("phoneNumber", PhoneNumber);
         startActivity(intent)
         finish()
     }
-        /**
+
+
+    /**
      * Cette méthode permet lancer le service en arrière-plan
      */
     private fun bgEnfant() {
@@ -261,8 +269,12 @@ class Authentification : AppCompatActivity() {
         )
 
         BootReceiver().onReceive(this, Intent())
-        intent.putExtra("phoneNumber", PhoneNumber);
-        finish()
-    }
 
+        finish()
+
+        // Retour sur l'écran d'accueil du téléphone
+        val intent = Intent(Intent.ACTION_MAIN)
+        intent.addCategory(Intent.CATEGORY_HOME)
+        startActivity(intent)
+    }
 }
