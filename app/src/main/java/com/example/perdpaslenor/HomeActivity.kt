@@ -6,7 +6,6 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.telephony.TelephonyManager
-import android.util.Log
 import android.view.View
 import android.widget.Button
 import android.widget.Toast
@@ -14,6 +13,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.google.firebase.firestore.FirebaseFirestore
+import java.math.BigInteger
+import java.security.MessageDigest
 
 
 private lateinit var boutonParent: Button
@@ -24,16 +25,28 @@ class HomeActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.home)
 
-        val phoneNumber = CheckPermission()
+        val phoneNumber = checkPermission()
         BDDBASE(phoneNumber)
 
         boutonParent = findViewById<View>(R.id.button2) as Button
-        boutonParent.setOnClickListener { Connexion() }
+        boutonParent.setOnClickListener { connexion() }
     }
 
-    private fun Connexion() {
+    private fun connexion() {
         val intent = Intent(this, Connexion::class.java)
         startActivity(intent)
+        finish()
+    }
+
+    private fun encryptMD5(input: String): String {
+        val md = MessageDigest.getInstance("MD5")
+        val messageDigest = md.digest(input.toByteArray())
+        val no = BigInteger(1, messageDigest)
+        var hashtext: String = no.toString(16)
+        while (hashtext.length < 32) {
+            hashtext = "0$hashtext"
+        }
+        return hashtext
     }
 
 
@@ -47,22 +60,22 @@ class HomeActivity : AppCompatActivity() {
             // Établis la connexion avec la base de données
             val db = FirebaseFirestore.getInstance()
             db.collection("user")
-                .whereEqualTo("numeroParent", phoneNumber)
+                .whereEqualTo("numeroParent", phoneNumber?.let { encryptMD5(it) })
                 .get()
                 .addOnSuccessListener { parentdocuments ->
                     if (parentdocuments.isEmpty) {
                         // Aucun document trouvé pour le numéro de téléphone dans le champ "numeroEnfant"
                         // Essayez de chercher dans le champ "numeroParent"
                         db.collection("user")
-                            .whereEqualTo("numeroEnfant", phoneNumber)
+                            .whereEqualTo("numeroEnfant", phoneNumber?.let { encryptMD5(it) })
                             .get()
                             .addOnSuccessListener { enfantDocuments ->
                                 if (enfantDocuments.isEmpty) {
                                     // Aucun document trouvé pour le numéro de téléphone dans le champ "numeroParent"
                                     println("Aucun document trouvé.")
                                 } else {
-                                    val Genre: String = "enfant"
-                                    IHMAUTH(Genre)
+                                    val Genre : String = "enfant"
+                                    phoneNumber?.let { authIHM(Genre, it) }
                                 }
                             }
                             .addOnFailureListener { exception ->
@@ -70,8 +83,8 @@ class HomeActivity : AppCompatActivity() {
                             }
                     } else {
                         // Des documents ont été trouvés pour le numéro de téléphone dans le champ "numeroEnfant"
-                        val Genre: String = "parent"
-                        IHMAUTH(Genre)
+                        val Genre : String = "parent"
+                        phoneNumber?.let { authIHM(Genre, it) }
                     }
                 }
                 .addOnFailureListener { exception ->
@@ -87,47 +100,22 @@ class HomeActivity : AppCompatActivity() {
             ).show();
         }
     }
-
-    private fun CheckPermission(): String? {
+    private fun checkPermission(): String? {
         var phoneNumber: String? = null // Initialisation avec null
+        val permissionSMS = ActivityCompat.checkSelfPermission(this, Manifest.permission.SEND_SMS) == PackageManager.PERMISSION_GRANTED
+        val permissionNUM = ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_GRANTED
 
-        var permissionSMS = false
-        var permissionNUM = false
-
-        if (ActivityCompat.checkSelfPermission(
-                this,
-                Manifest.permission.SEND_SMS
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
-            // Demander la permission d'envoyer des SMS
-            ActivityCompat.requestPermissions(
-                this, arrayOf(Manifest.permission.SEND_SMS),
-                Connexion.PERMISSION_REQUEST_SEND_SMS
+        if (!permissionSMS || !permissionNUM) {
+            // Demander les permissions manquantes
+            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.SEND_SMS, Manifest.permission.READ_PHONE_STATE),
+                PERMISSION_REQUEST_CODE
             )
         } else {
-            permissionSMS = true
-        }
-
-        if (ActivityCompat.checkSelfPermission(
-                this,
-                Manifest.permission.READ_PHONE_STATE
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
-            // Demander la permission d'accéder au numéro de téléphone
-            ActivityCompat.requestPermissions(
-                this, arrayOf(Manifest.permission.READ_PHONE_STATE),
-                Connexion.PERMISSION_REQUEST_READ_PHONE_STATE
-            )
-        } else {
-            permissionNUM = true
-        }
-
-        if (permissionNUM && permissionSMS) {
             // Les deux permissions sont accordées
             // Vous pouvez maintenant accéder au numéro de téléphone
             phoneNumber = getPhoneNumber()
-        } else {
-            // Vous devrez attendre la réponse de l'utilisateur dans onRequestPermissionsResult()
+
+            // Faites quelque chose avec le numéro de téléphone
         }
         return phoneNumber
     }
@@ -138,33 +126,19 @@ class HomeActivity : AppCompatActivity() {
         grantResults: IntArray
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        when (requestCode) {
-            Connexion.PERMISSION_REQUEST_SEND_SMS -> {
-                if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    // Permission d'envoi de SMS accordée
-                    // Vous pouvez effectuer des actions nécessitant cette permission
-                } else {
-                    // La permission d'envoi de SMS a été refusée
-                    Toast.makeText(
-                        this,
-                        "Veuillez accepter la permission d'envoie sms",
-                        Toast.LENGTH_SHORT
-                    ).show();
-                }
-            }
-
-            Connexion.PERMISSION_REQUEST_READ_PHONE_STATE -> {
-                if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    // Permission d'accès au numéro de téléphone accordée
-                    // Vous pouvez effectuer des actions nécessitant cette permission
-                } else {
-                    // La permission d'accès au numéro de téléphone a été refusée
-                    Toast.makeText(
-                        this,
-                        "Veuillez accepter la permission information sur le numéro de téléphone",
-                        Toast.LENGTH_SHORT
-                    ).show();
-                }
+        if (requestCode == PERMISSION_REQUEST_CODE) {
+            // Vérifiez si toutes les autorisations ont été accordées
+            val allPermissionsGranted = grantResults.all { it == PackageManager.PERMISSION_GRANTED }
+            if (allPermissionsGranted) {
+                // Toutes les permissions ont été accordées
+                val phoneNumber = getPhoneNumber()
+            } else {
+                // Au moins une permission a été refusée
+                Toast.makeText(
+                    this,
+                    "Permissions refusées",
+                    Toast.LENGTH_SHORT).show()
+                checkPermission()
             }
         }
     }
@@ -177,16 +151,21 @@ class HomeActivity : AppCompatActivity() {
         ) {
             val telephonyManager = getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
             telephonyManager.line1Number?.takeIf { it.isNotBlank() }
-        } else {
+        } else
             // La permission n'est pas accordée
             // Gérer le cas où l'application n'a pas la permission d'accéder au numéro de téléphone
             null
-        }
     }
 
-    private fun IHMAUTH(Genre: String) {
+    companion object {
+        private const val PERMISSION_REQUEST_CODE = 123 // Remplacez 123 par un code de demande de permission unique
+    }
+
+    private fun authIHM(Genre : String,phoneNumber : String){
         val intent = Intent(this, Authentification::class.java)
         intent.putExtra("Genre", Genre);
+        intent.putExtra("phoneNumber", phoneNumber);
+
         startActivity(intent)
         finish()
     }

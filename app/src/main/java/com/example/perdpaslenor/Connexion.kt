@@ -7,6 +7,7 @@ import android.content.pm.PackageManager
 import android.os.Bundle
 import android.telephony.SmsManager
 import android.telephony.TelephonyManager
+import android.util.Log
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
@@ -34,19 +35,19 @@ class Connexion : AppCompatActivity() {
             if (phone.isNotEmpty()) {
                 val randomNumber = (10000..99999).random()
 
-                val phoneNumber = CheckPermission()
+                val phoneNumber = checkPermission()
 
                 val obj = SmsManager.getDefault()
                 obj.sendTextMessage(
                     phone, null, "$randomNumber",
                     null, null
                 )
-                Authentification(phone, randomNumber, phoneNumber)
+                authentification(phone, randomNumber, phoneNumber)
             }
         }
     }
 
-    private fun CheckPermission(): String? {
+    private fun checkPermission(): String? {
         var phoneNumber: String? = null // Initialisation avec null
 
         var permissionSMS = false
@@ -103,28 +104,26 @@ class Connexion : AppCompatActivity() {
             PERMISSION_REQUEST_SEND_SMS -> {
                 if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     // Permission d'envoi de SMS accordée
-                    // Vous pouvez effectuer des actions nécessitant cette permission
                 } else {
                     // La permission d'envoi de SMS a été refusée
                     Toast.makeText(
                         this,
-                        "Veuillez accepter la permission d'envoie sms",
+                        "Veuillez accepter la permission d'envoi sms",
                         Toast.LENGTH_SHORT
-                    ).show();
+                    ).show()
                 }
             }
 
             PERMISSION_REQUEST_READ_PHONE_STATE -> {
                 if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     // Permission d'accès au numéro de téléphone accordée
-                    // Vous pouvez effectuer des actions nécessitant cette permission
                 } else {
                     // La permission d'accès au numéro de téléphone a été refusée
                     Toast.makeText(
                         this,
                         "Veuillez accepter la permission information sur le numéro de téléphone",
                         Toast.LENGTH_SHORT
-                    ).show();
+                    ).show()
                 }
             }
         }
@@ -138,19 +137,18 @@ class Connexion : AppCompatActivity() {
         ) {
             val telephonyManager = getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
             telephonyManager.line1Number?.takeIf { it.isNotBlank() }
-        } else {
-            // La permission n'est pas accordée
-            // Gérer le cas où l'application n'a pas la permission d'accéder au numéro de téléphone
+        } else
+        // La permission n'est pas accordée
+        // Gérer le cas où l'application n'a pas la permission d'accéder au numéro de téléphone
             null
-        }
     }
 
-    private fun Authentification(phone: String, randomNumber: Int, phoneNumber: String?) {
+    private fun authentification(phone: String, randomNumber: Int, phoneNumber: String?) {
         val intent = Intent(this, Authentification::class.java)
         val chaine: String = randomNumber.toString()
-        intent.putExtra("phoneTO", phone);
-        intent.putExtra("codeAUTH", chaine);
-        intent.putExtra("ME", phoneNumber);
+        intent.putExtra("phoneTO", phone)
+        intent.putExtra("codeAUTH", chaine)
+        intent.putExtra("ME", phoneNumber)
         startActivity(intent)
     }
 }

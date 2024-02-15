@@ -10,7 +10,7 @@ android {
 
     defaultConfig {
         applicationId = "com.example.perdpaslenor"
-        minSdk = 24
+        minSdk = 21
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
@@ -51,9 +51,7 @@ dependencies {
     implementation("com.google.firebase:firebase-components:17.1.5")
     implementation("com.google.firebase:firebase-core:21.1.1")
     implementation("com.google.firebase:firebase-database:20.3.0")
-
     implementation("com.google.firebase:firebase-auth-ktx:22.3.0")
-
     implementation("com.google.firebase:firebase-firestore:24.10.0")
     implementation("com.google.firebase:firebase-firestore-ktx:24.10.0")
     testImplementation("junit:junit:4.13.2")
