@@ -17,6 +17,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import com.google.firebase.Timestamp
 import com.google.firebase.firestore.FirebaseFirestore
 import java.math.BigInteger
 import java.security.MessageDigest
@@ -126,7 +127,11 @@ class Authentification : AppCompatActivity() {
                     // Crée un objet de type Map pour stocker vos données
                     val user = hashMapOf(
                         "numeroEnfant" to encryptedPhoneTO,
-                        "numeroParent" to encryptedME
+                        "numeroParent" to encryptedME,
+                        "latitude" to 0,
+                        "longitude" to 0,
+                        "etat" to "L'enfant n'a pas lancé ou relancé l'application. Veuillez relancer l'application quand l'enfant aura initialisé la géolocalisation.",
+                        "date" to Timestamp.now()
                     )
 
                     // Ajoutez les données à votre collection "utilisateurs"
