@@ -70,14 +70,14 @@ class Authentification : AppCompatActivity() {
                         Toast.LENGTH_SHORT
                     ).show()
                 }
+                timer.schedule(object : TimerTask() {
+                    override fun run() {
+                        tempsFIN()
+                    }
+                }, 60000)
             }
         }, 10000)
 
-        timer.schedule(object : TimerTask() {
-            override fun run() {
-                tempsFIN()
-            }
-        }, 120000) // 120000 millisecondes = 2 minutes
 
         boutonconf.setOnClickListener { parents(me, phoneTO, codeAUTH) }
     }
@@ -114,7 +114,7 @@ class Authentification : AppCompatActivity() {
         if (nbr > 0) {
 
             if (codeAUTH == etexte) {
-
+                this.timer.cancel();
                 val internetPermission = ContextCompat.checkSelfPermission(
                     this,
                     Manifest.permission.INTERNET

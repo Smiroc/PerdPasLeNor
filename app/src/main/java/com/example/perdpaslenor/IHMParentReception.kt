@@ -58,7 +58,7 @@ class IHMParentReception : AppCompatActivity(), OnMapReadyCallback {
                         this.latitude = document.get("latitude").toString()
                         this.longitude = document.get("longitude").toString()
                         this.etat = document.get("etat").toString()
-                        val dateTimeStapFor = document.get("dateTrack") as Timestamp
+                        val dateTimeStapFor = document.get("date") as Timestamp
 
                         this.dateTrack = format.format(dateTimeStapFor.toDate()).toString()
 
