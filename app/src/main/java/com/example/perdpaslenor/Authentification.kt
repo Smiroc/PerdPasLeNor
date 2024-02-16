@@ -1,12 +1,15 @@
 package com.example.perdpaslenor
 import android.Manifest
 import android.content.ComponentName
+import android.content.ContentValues.TAG
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.nfc.Tag
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import android.view.View
 import android.widget.Button
 import android.widget.EditText
@@ -28,6 +31,7 @@ class Authentification : AppCompatActivity() {
     private lateinit var editcode: EditText
     private var nbr: Int = 3
     private lateinit var phoneNumber: String
+    private val timer = Timer()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -35,14 +39,18 @@ class Authentification : AppCompatActivity() {
 
         val phoneTO = intent.getStringExtra("phoneTO")
         val codeAUTH = intent.getStringExtra("codeAUTH")
+
         val me = intent.getStringExtra("ME")
         val genre = intent.getStringExtra("Genre")
         this.phoneNumber = intent.getStringExtra("phoneNumber").toString()
 
+
         if (genre == "parent") {
             viewParent()
+            return
         } else if (genre == "enfant") {
             bgEnfant()
+            return
         }
 
         boutonconf = (findViewById<View>(R.id.buttonconfirmation) as Button?)!!
@@ -51,8 +59,6 @@ class Authentification : AppCompatActivity() {
         }
 
         checkup(me, phoneTO, codeAUTH)
-
-        val timer = Timer()
 
         timer.schedule(object : TimerTask() {
             override fun run() {
@@ -64,7 +70,7 @@ class Authentification : AppCompatActivity() {
                     ).show()
                 }
             }
-        }, 60000)
+        }, 10000)
 
         timer.schedule(object : TimerTask() {
             override fun run() {
@@ -240,6 +246,7 @@ class Authentification : AppCompatActivity() {
         finish()
     }
 
+
     /**
      * Cette méthode permet lancer le service en arrière-plan
      */
@@ -274,6 +281,7 @@ class Authentification : AppCompatActivity() {
         )
 
         BootReceiver().onReceive(this, Intent())
+
         finish()
 
         // Retour sur l'écran d'accueil du téléphone
