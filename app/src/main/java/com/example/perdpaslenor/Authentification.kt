@@ -17,6 +17,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import com.google.firebase.Timestamp
 import com.google.firebase.firestore.FirebaseFirestore
 import java.math.BigInteger
 import java.security.MessageDigest
@@ -54,8 +55,9 @@ class Authentification : AppCompatActivity() {
         }
 
         boutonconf = (findViewById<View>(R.id.buttonconfirmation) as Button?)!!
-
-        Toast.makeText(this, "Un code d'authentification a été envoyer", Toast.LENGTH_SHORT).show()
+        runOnUiThread {
+            Toast.makeText(this, "Un code d'authentification a été envoyer", Toast.LENGTH_SHORT).show()
+        }
 
         checkup(me, phoneTO, codeAUTH)
 
@@ -68,14 +70,14 @@ class Authentification : AppCompatActivity() {
                         Toast.LENGTH_SHORT
                     ).show()
                 }
+                timer.schedule(object : TimerTask() {
+                    override fun run() {
+                        tempsFIN()
+                    }
+                }, 60000)
             }
         }, 10000)
 
-        timer.schedule(object : TimerTask() {
-            override fun run() {
-                tempsFIN()
-            }
-        }, 120000) // 120000 millisecondes = 2 minutes
 
         boutonconf.setOnClickListener { parents(me, phoneTO, codeAUTH) }
     }
@@ -89,7 +91,7 @@ class Authentification : AppCompatActivity() {
         finish()
     }
 
-    private fun encryptMD5(input: String): String {
+    fun encryptMD5(input: String): String {
         val md = MessageDigest.getInstance("MD5")
         val messageDigest = md.digest(input.toByteArray())
         val no = BigInteger(1, messageDigest)
@@ -112,7 +114,7 @@ class Authentification : AppCompatActivity() {
         if (nbr > 0) {
 
             if (codeAUTH == etexte) {
-
+                this.timer.cancel();
                 val internetPermission = ContextCompat.checkSelfPermission(
                     this,
                     Manifest.permission.INTERNET
@@ -125,7 +127,11 @@ class Authentification : AppCompatActivity() {
                     // Crée un objet de type Map pour stocker vos données
                     val user = hashMapOf(
                         "numeroEnfant" to encryptedPhoneTO,
-                        "numeroParent" to encryptedME
+                        "numeroParent" to encryptedME,
+                        "latitude" to 0,
+                        "longitude" to 0,
+                        "etat" to "L'enfant n'a pas lancé ou relancé l'application. Veuillez relancer l'application quand l'enfant aura initialisé la géolocalisation.",
+                        "date" to Timestamp.now()
                     )
 
                     // Ajoutez les données à votre collection "utilisateurs"
@@ -133,35 +139,43 @@ class Authentification : AppCompatActivity() {
                         .add(user)
                         .addOnSuccessListener {
                             // L'ajout des données a réussi
-                            Toast.makeText(
-                                this,
-                                "L'ajout des données a réussi",
-                                Toast.LENGTH_SHORT
-                            ).show()
+                            runOnUiThread {
+                                Toast.makeText(
+                                    this,
+                                    "L'ajout des données a réussi",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
                             viewParent()
                         }
                         .addOnFailureListener {
                             // L'ajout des données a échoué
-                            Toast.makeText(
-                                this,
-                                "L'ajout des données a échoué",
-                                Toast.LENGTH_SHORT
-                            ).show()
+                            runOnUiThread {
+                                Toast.makeText(
+                                    this,
+                                    "L'ajout des données a échoué",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
                         }
                 } else {
-                    Toast.makeText(
-                        this,
-                        "Veuillez autoriser la connexion à internet",
-                        Toast.LENGTH_SHORT
-                    ).show()
+                    runOnUiThread {
+                        Toast.makeText(
+                            this,
+                            "Veuillez autoriser la connexion à internet",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
                 }
             } else {
-                Toast.makeText(
-                    this,
-                    "Le code d'authentification ne correspond pas (il vous reste $nbr essais avant que le code ne soit plus valide)",
-                    Toast.LENGTH_SHORT
-                ).show()
-                nbr -= 1
+                runOnUiThread {
+                    Toast.makeText(
+                        this,
+                        "Le code d'authentification ne correspond pas (il vous reste $nbr essais avant que le code ne soit plus valide)",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    nbr -= 1
+                }
             }
         } else {
             val intent = Intent(this, Connexion::class.java)
@@ -186,7 +200,9 @@ class Authentification : AppCompatActivity() {
         }
 
         if (error) {
-            Toast.makeText(this, "Error réception de données", Toast.LENGTH_SHORT).show()
+            runOnUiThread {
+                Toast.makeText(this, "Error réception de données", Toast.LENGTH_SHORT).show()
+            }
         }
     }
 
@@ -230,6 +246,7 @@ class Authentification : AppCompatActivity() {
      */
     private fun viewParent() {
         val intent = Intent(this, IHMParentReception::class.java)
+        intent.putExtra("phoneNumber", phoneNumber)
         startActivity(intent)
         finish()
     }

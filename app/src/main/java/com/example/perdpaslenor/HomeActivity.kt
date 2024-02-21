@@ -93,11 +93,13 @@ class HomeActivity : AppCompatActivity() {
 
 
         } else {
-            Toast.makeText(
-                this,
-                "Veuillez autoriser la connexion à internet",
-                Toast.LENGTH_SHORT
-            ).show();
+            runOnUiThread {
+                Toast.makeText(
+                    this,
+                    "Veuillez autoriser la connexion à internet",
+                    Toast.LENGTH_SHORT
+                ).show();
+            }
         }
     }
     private fun checkPermission(): String? {
@@ -134,11 +136,14 @@ class HomeActivity : AppCompatActivity() {
                 val phoneNumber = getPhoneNumber()
             } else {
                 // Au moins une permission a été refusée
-                Toast.makeText(
-                    this,
-                    "Permissions refusées",
-                    Toast.LENGTH_SHORT).show()
-                checkPermission()
+                runOnUiThread {
+                    Toast.makeText(
+                        this,
+                        "Permissions refusées",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    checkPermission()
+                }
             }
         }
     }
